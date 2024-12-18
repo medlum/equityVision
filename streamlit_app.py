@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit_extras.let_it_rain import rain
 from utils_entry_pt import *
 # Configure the Streamlit app with a title, layout, icon, and initial sidebar state
 st.set_page_config(page_title="Equity Trading",

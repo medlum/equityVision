@@ -12,3 +12,4 @@ yfinance
 matplotlib
 ta
 numpy
+google-auth-httplib2

@@ -3,23 +3,81 @@ from pydrive.drive import GoogleDrive
 import requests
 import streamlit as st
 from pathlib import Path
-
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from google.oauth2.credentials import Credentials
 # Function to authenticate with Google Drive and fetch the user's email address
 
 
 def authenticate_google_drive():
-    gauth = GoogleAuth()
-    gauth.LoadClientConfigFile("client_secrets.json")
-    gauth.settings['oauth_scope'] = [
-        'https://www.googleapis.com/auth/drive',
-        'https://www.googleapis.com/auth/userinfo.email'
-    ]
-    gauth.LocalWebserverAuth()
-    access_token = gauth.credentials.access_token
-    user_info = get_user_info(access_token)
+    SCOPES = ['https://www.googleapis.com/auth/drive',
+              'https://www.googleapis.com/auth/userinfo.email']
+    # Check if credentials are already available
+    if 'credentials' not in st.session_state:
+        # Create the flow using the client secrets file from the Google API Console
+        flow = InstalledAppFlow.from_client_secrets_file(
+            'client_secrets.json',
+            SCOPES,
+            redirect_uri='https://equity-vision.streamlit.app'
+        )
+
+        # Generate the authorization URL
+        authorization_url, state = flow.authorization_url(
+            access_type='offline',
+            include_granted_scopes='true'
+        )
+
+        # Store the state in session state
+        st.session_state.state = state
+
+        # Redirect the user to the authorization URL
+        st.write(
+            f"Please go to this URL to authorize: [Authorize]({authorization_url})")
+        return None, None
+
+    # Get the authorization response
+    if 'code' in st.experimental_get_query_params():
+        code = st.experimental_get_query_params()['code'][0]
+        state = st.experimental_get_query_params()['state'][0]
+
+        # Exchange the authorization code for credentials
+        flow = InstalledAppFlow.from_client_secrets_file(
+            'client_secrets.json',
+            SCOPES,
+            state=st.session_state.state,
+            redirect_uri='https://<your-app-name>.streamlit.app/callback'
+        )
+        flow.fetch_token(code=code)
+
+        # Save the credentials in session state
+        creds = flow.credentials
+        st.session_state.credentials = creds
+
+    # Get the credentials from session state
+    creds = st.session_state.credentials
+
+    # Build the Google Drive service
+    drive_service = build('drive', 'v3', credentials=creds)
+
+    # Get user info
+    user_info = get_user_info(creds.token)
     user_email = user_info.get("email", "Unknown User")
-    drive = GoogleDrive(gauth)
-    return drive, user_email
+
+    return drive_service, user_email
+
+# def authenticate_google_drive():
+#    gauth = GoogleAuth()
+#    gauth.LoadClientConfigFile("client_secrets.json")
+#    gauth.settings['oauth_scope'] = [
+#        'https://www.googleapis.com/auth/drive',
+#        'https://www.googleapis.com/auth/userinfo.email'
+#    ]
+#    gauth.LocalWebserverAuth()
+#    access_token = gauth.credentials.access_token
+#    user_info = get_user_info(access_token)
+#    user_email = user_info.get("email", "Unknown User")
+#    drive = GoogleDrive(gauth)
+#    return drive, user_email
 
 # Helper function to fetch the user's email from Google API using the access token
 

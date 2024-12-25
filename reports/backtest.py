@@ -12,14 +12,12 @@ client = InferenceClient(token=st.secrets.api_keys.huggingfacehub_api_token)
 
 # set LLM model
 model_option = {"qwen2.5-72b": "Qwen/Qwen2.5-72B-Instruct",
-                "qwen2.5-coder": "Qwen/Qwen2.5-Coder-32B-Instruct",
                 "llama3.3-70b": "meta-llama/Llama-3.3-70B-Instruct",
                 "llama3.1-70b": "meta-llama/Meta-Llama-3.1-70B-Instruct",
-                "llama3-8b": "meta-llama/Meta-Llama-3-8B-Instruct",
                 }
 
 if "model_select" not in st.session_state:
-    st.session_state.model_select = model_option.get("llama3.3-70b")
+    st.session_state.model_select = model_option.get("llama3.1-70b")
 
 # persist tickers selection if user switch page
 if "tickers" not in st.session_state:
@@ -32,10 +30,11 @@ if "strategy" not in st.session_state:
 # sidebar widgets
 sidebar_widget = st.sidebar
 # Streamlit app
-#model_select = sidebar_widget.selectbox(
-#    label="Pick a model to chat with Finley", options=model_option.keys(), index=3)
+model_select = sidebar_widget.selectbox(
+    label="Pick a model to chat with Finley", options=model_option.keys(), index=2)
 
-#st.session_state.model_select = model_option.get(model_select)
+st.session_state.model_select = model_option.get(model_select)
+
 exchange = sidebar_widget.selectbox(label= ":blue[Stock Exchange]",
                                     options=["SGX", "NYSE"])
 

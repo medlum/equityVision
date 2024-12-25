@@ -10,7 +10,6 @@ from utils_markdown import display_md
 # Ensure the watchlist folder exists
 watchlist_folder = Path(f'user_data/{st.session_state.user_id}/watchlist')
 watchlist_folder.mkdir(parents=True, exist_ok=True)
-st.write("watchlist_folder : ", watchlist_folder)
 
 # Select market
 market = st.sidebar.selectbox(
@@ -21,14 +20,12 @@ if market:
     file_path = Path(f'resource/{market}.csv')
 
     watchlist_file_path = watchlist_folder / f'watchlist_{market}.json'
-    st.write("watchlist_file_path : ", watchlist_folder)
 
     # Load the stock data
     stock_data = load_data(file_path)
 
     # Load the existing watchlists
     watchlists = load_watchlists(watchlist_file_path)
-    st.write("load watchlist : ", watchlists)
 
 
 # Sidebar UI for managing watchlists
@@ -88,7 +85,6 @@ if st.sidebar.button("Save Watchlist"):
     if watchlist_name:
         
         watchlists[watchlist_name] = selected_symbols
-        st.write("save button pressed : ", watchlists)
         save_watchlists(watchlist_file_path, watchlists)
         st.sidebar.success(f"Watchlist '{watchlist_name}' saved successfully!")
         upload_to_google_drive()

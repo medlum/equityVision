@@ -10,27 +10,33 @@ from utils_markdown import display_md
 # Ensure the watchlist folder exists
 watchlist_folder = Path(f'user_data/{st.session_state.user_id}/watchlist')
 watchlist_folder.mkdir(parents=True, exist_ok=True)
+st.write("watchlist_folder : ", watchlist_folder)
 
 # Select market
 market = st.sidebar.selectbox(
     label=":blue[**Stock Exchange**]", options=["SGX", "NYSE"])
 
-# Determine the file path based on the selected market
-file_path = Path(f'resource/{market}.csv')
-watchlist_file_path = watchlist_folder / f'watchlist_{market}.json'
+if market:
+    # Determine the file path based on the selected market
+    file_path = Path(f'resource/{market}.csv')
 
-# Load the stock data
-stock_data = load_data(file_path)
+    watchlist_file_path = watchlist_folder / f'watchlist_{market}.json'
+    st.write("watchlist_file_path : ", watchlist_folder)
 
-# Load the existing watchlists
-watchlists = load_watchlists(watchlist_file_path)
+    # Load the stock data
+    stock_data = load_data(file_path)
+
+    # Load the existing watchlists
+    watchlists = load_watchlists(watchlist_file_path)
+    st.write("load watchlist : ", watchlists)
+
 
 # Sidebar UI for managing watchlists
 #st.sidebar.subheader(":blue[Watchlists]")
 
 # Dropdown to select existing watchlist or create new one
 if watchlists:
-
+    
     existing_watchlists = list(watchlists.keys())
 
     watchlist_action = st.sidebar.radio(
@@ -46,11 +52,11 @@ if watchlists:
         watchlist_name = st.sidebar.text_input(
             "Enter a new watchlist name", "New Watchlist")
 else:
-    watchlist_action = "Create New Watchlist"  # Define watchlist_action here
+    watchlist_action = "Create New"  # Define watchlist_action here
     st.sidebar.warning("No watchlists available. Please create a new one.")
 
     watchlist_name = st.sidebar.text_input(
-            "Enter a new watchlist name", "New Watchlist", disabled=True)
+            "Enter a new watchlist name", "New Watchlist", disabled=False)
 
 # Load the selected symbols from the watchlist
 selected_symbols = watchlists.get(watchlist_name, [])
@@ -71,15 +77,18 @@ selected_names = st.sidebar.multiselect(
 selected_symbols = [name_to_symbol[name] for name in selected_names]
 
 # Enable or disable the "Save Watchlist" button based on conditions
-#if (watchlist_action == "Use Existing Watchlist" and selected_names) or (watchlist_action == "Create New Watchlist" and selected_names):
+#if (watchlist_action == "Use Existing Watchlist" and selected_names) or (watchlist_action == "Create New" and selected_names):
 #    save_button_disabled = False
 #else:
 #    save_button_disabled = True
 
 # Save the watchlist
 if st.sidebar.button("Save Watchlist"):
+
     if watchlist_name:
+        
         watchlists[watchlist_name] = selected_symbols
+        st.write("save button pressed : ", watchlists)
         save_watchlists(watchlist_file_path, watchlists)
         st.sidebar.success(f"Watchlist '{watchlist_name}' saved successfully!")
         upload_to_google_drive()

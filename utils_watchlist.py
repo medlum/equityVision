@@ -28,11 +28,11 @@ def load_watchlists(file_path):
 
 def save_watchlists(file_path, watchlists):
 # Function to save watchlist to a JSON file
-    if file_path.exists():
-        with file_path.open('w') as file:
-            json.dump(watchlists, file, indent=4)
-    else:
-        st.warning("No watchlists saved locally")
+    #if file_path.exists():
+    with file_path.open('w') as file:
+        json.dump(watchlists, file, indent=4)
+    #else:
+    #    st.warning("No watchlists saved locally")
 
 @st.cache_data
 def load_data(file_path):

@@ -1,0 +1,51 @@
+{
+    "AI related stocks": [
+        "AAPL",
+        "AMZN",
+        "GOOGL",
+        "IBM",
+        "META",
+        "MSFT",
+        "NFLX",
+        "NVDA",
+        "ORCL",
+        "RDDT",
+        "PATH",
+        "PLTR"
+    ],
+    "AI hardware and semiconductors ": [
+        "AMD",
+        "AVGO",
+        "CRDO",
+        "INTC",
+        "SMCI",
+        "SYM",
+        "TSM",
+        "VRT",
+        "MU"
+    ],
+    "Renewable Energy Stocks": [
+        "D",
+        "NEE",
+        "VST",
+        "PEG",
+        "BE",
+        "BEP",
+        "CEG"
+    ],
+    "Therapeutics and pharma stocks": [
+        "AZN",
+        "LLY",
+        "NVO",
+        "NVS",
+        "SMMT",
+        "VERA",
+        "VKTX",
+        "SNY"
+    ],
+    "Carmakers, EV and transport solutions": [
+        "NIO",
+        "TSLA",
+        "GM"
+    ]
+}

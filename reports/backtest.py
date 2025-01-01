@@ -70,7 +70,7 @@ with col_bot:
     st.write("###")
     st.write("**:blue[Chat with Finley]**")
 
-    messages = st.container(border=True)
+    messages = st.container(border=True, key="messages_container")
 
     for msg in st.session_state.msg_history:
         if msg['role'] != "system":
@@ -112,8 +112,15 @@ with col_bot:
             {"role": "assistant", "content": collected_response})
 
         # Keep history to 3, pop 2nd item from the list
-        if len(st.session_state.msg_history) >= 3:
-            st.session_state.msg_history.pop(1)
+        #if len(st.session_state.msg_history) >= 3:
+        #    st.session_state.msg_history.pop(1)
+
+    if st.button('Clear chat'):
+        st.session_state.msg_history = st.session_state.msg_history[:2]
+        messages.empty()
+        st.rerun()
+        #messages = st.container(border=True)
+
 
     disclaimer_text = """Disclaimer:
     The information and recommendations provided by Finley are for educational and informational purposes only and should not be considered as financial advice or a guarantee of future results. Investments in the stock market carry risks, including the potential loss of capital, and past performance does not guarantee future performance.
@@ -131,7 +138,7 @@ tickers = sidebar_widget.multiselect(label= ":blue[Stock]",
                                     options=list(stock_options.keys()), 
                                     format_func=lambda x: f"{x} - {stock_options[x]}", 
                                     placeholder="Select one or more", 
-                                    default=st.session_state.tickers)
+                                    default=None)
 
 # persist selected tickers in session state to retain page memory
 st.session_state.tickers = tickers

@@ -32,6 +32,10 @@ watchlist = st.Page("reports/watchlist.py",
                     title="Watchlist",
                     icon=":material/search:")
 
+portfolio = st.Page("reports/portfolio.py", 
+                    title="Portfolio",
+                    icon=":material/summarize:")
+
 search = st.Page("tools/search.py", 
                  title="Search", 
                  icon=":material/search:")
@@ -44,7 +48,7 @@ if st.session_state.logged_in:
     pg = st.navigation(
         {
             "Account": [logout_page],
-            "Dashboard": [backtest, watchlist],
+            "Dashboard": [backtest, watchlist, portfolio],
             "Tools": [search, history],
         }
     )

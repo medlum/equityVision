@@ -149,12 +149,12 @@ tickers = sidebar_widget.multiselect(label= ":blue[Stock]",
                                     format_func=lambda x: f"{x} - {stock_options[x]}", 
                                     placeholder="Select one or more", 
                                     key='tickers',
-                                    default=st.session_state.tickers)
+                                    )
 
 # persist selected tickers in session state to retain page memory
 #st.session_state.tickers = tickers
-if tickers:
-    st.write(f'You selected: {tickers}')
+#if tickers:
+#    st.write(f'You selected: {tickers}')
 
 if len(tickers):
     strategy = sidebar_widget.selectbox(label=":blue[Trading Strategy]", options=trading_strategy, index=0)

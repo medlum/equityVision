@@ -10,7 +10,7 @@ from ta.momentum import RSIIndicator
 # Define strategy parameters and their default states
 strategy_params = {
     "Moving Average Crossover": {
-        "sma_period": {"min_value": 1, "value": 50},
+        "sma_period": {"min_value": 1, "value": 20},
         "ema_period": {"min_value": 1, "value": 20},
         "period_select": {
             "sma period (days)": None,

@@ -8,6 +8,20 @@ from utils_watchlist import *
 from utils_markdown import display_md
 from utils_gdrive import upload_to_google_drive, load_data
 
+# Insert at each page to interrupt the widget clean-up process
+# https://docs.streamlit.io/develop/concepts/multipage-apps/widgets
+
+if "tickers" in st.session_state:
+    st.session_state.tickers = st.session_state.tickers
+    
+if "watchlist_name" in st.session_state:
+    st.session_state.watchlist_name = st.session_state.watchlist_name
+
+# initialize session state for text_input widget to remain stateful across page
+if "watchlist_name" not in st.session_state:
+    st.session_state.watchlist_name = None
+    
+
 # f'user_data/{st.session_state.user_id}/watchlist' is created at utils_entry_pt
 # Ensure the user's watchlist folder exists
 watchlist_folder = Path(f'user_data/{st.session_state.user_id}/watchlist')
@@ -32,8 +46,6 @@ if market:
     # -> watchlist returns dict {}
     watchlists = load_watchlists(watchlist_file_path)
 
-
-
 # Dropdown to select existing watchlist or create new one
 
 # if watchlist is not empty
@@ -50,8 +62,9 @@ if watchlists:
 
     # if use existing, display stock in the watchlist 
     if watchlist_action == "Use Existing":
+
         watchlist_name = st.sidebar.selectbox(
-            "Select Watchlist", options=existing_watchlists, index=None)
+            "Select Watchlist", options=existing_watchlists, key='watchlist_name', index=0)
 
     # if create new, allow user to enter text
     else:

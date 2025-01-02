@@ -5,6 +5,14 @@ import streamlit as st
 from huggingface_hub import InferenceClient
 from utils_markdown import display_md
 
+# Insert at each page to interrupt the widget clean-up process
+# https://docs.streamlit.io/develop/concepts/multipage-apps/widgets
+if "tickers" in st.session_state:
+    st.session_state.tickers = st.session_state.tickers
+
+if "watchlist_name" in st.session_state:
+    st.session_state.watchlist_name = st.session_state.watchlist_name
+
 col_trade, col_bot = st.columns([0.7, 0.3])
 
 # --- Initialize the Inference Client with the API key ----#
@@ -22,6 +30,8 @@ if "model_select" not in st.session_state:
 # persist tickers selection if user switch page
 if "tickers" not in st.session_state:
     st.session_state.tickers = []
+
+
 
 
 if "strategy" not in st.session_state:
@@ -138,10 +148,13 @@ tickers = sidebar_widget.multiselect(label= ":blue[Stock]",
                                     options=list(stock_options.keys()), 
                                     format_func=lambda x: f"{x} - {stock_options[x]}", 
                                     placeholder="Select one or more", 
-                                    default=None)
+                                    key='tickers',
+                                    default=st.session_state.tickers)
 
 # persist selected tickers in session state to retain page memory
-st.session_state.tickers = tickers
+#st.session_state.tickers = tickers
+if tickers:
+    st.write(f'You selected: {tickers}')
 
 if len(tickers):
     strategy = sidebar_widget.selectbox(label=":blue[Trading Strategy]", options=trading_strategy, index=0)
@@ -152,7 +165,7 @@ if len(tickers):
     if strategy:
         # Create a selectbox for time period selection
         period = sidebar_widget.selectbox(":blue[Time Period]", [
-            "1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"], index=5)
+            "1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"], index=4)
 
         # Get the parameters for the selected strategy
         # (strategy_params dict is located in utils.py)

@@ -6,6 +6,15 @@ st.set_page_config(page_title="Equity Trading",
                    page_icon="💰",
                    initial_sidebar_state="expanded")
 
+# Insert at each page to interrupt the widget clean-up process
+# https://docs.streamlit.io/develop/concepts/multipage-apps/widgets
+if "tickers" in st.session_state:
+    st.session_state.tickers = st.session_state.tickers
+
+if "watchlist_name" in st.session_state:
+    st.session_state.watchlist_name = st.session_state.watchlist_name
+
+# Initialize session states
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 

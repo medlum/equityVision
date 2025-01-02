@@ -169,14 +169,14 @@ if selected_symbols:
                         st.dataframe(earnings_calendar, hide_index=True)
                     
 
-                with col2:
+                #with col2:
                     # fetch upgrades
-                    display_md.display("Securities Firm Call")
-                    upgrades_downgrades = fetch_upgrades_downgrades(_stock)
-                    if upgrades_downgrades.empty:
-                        st.warning("Not Available")
-                    else:
-                        st.write(upgrades_downgrades)
+                    #display_md.display("Securities Firm Call")
+                    #upgrades_downgrades = fetch_upgrades_downgrades(_stock)
+                    #if upgrades_downgrades.empty:
+                    #    st.warning("Not Available")
+                    #else:
+                    #    st.write(upgrades_downgrades)
 
 else:
     st.write(f"#### :red[{watchlist_name}]")

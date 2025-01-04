@@ -177,16 +177,16 @@ with col_watchlist:
 
                 #with st.container():
                 
-                st.write("##### Stock Price Chart")
+                st.write("###### Stock Price Chart")
                 plot_stock_data(symbol=symbol, period='1y')
 
                 # fetch dividends
-                st.write("##### Dividends Trends")
+                st.write("###### Dividends Trends")
                 filtered_data = fetch_dividends(_stock)
                 plot_dividends(filtered_data)
 
                 # fetch analysts recommendations
-                st.write("##### Analysts Recommendations")
+                st.write("###### Analysts Recommendations")
                 data, numeric_df, max_value = fetch_recommendations(_stock)
                 if data is not None:
                     plot_recommendations(data, numeric_df, max_value)
@@ -197,23 +197,23 @@ with col_watchlist:
                 #                              gap="small", 
                 #                              vertical_alignment="top")
                 
-                tab_1, tab_2, tab_3 = st.tabs(["Dividend Yield", 
-                                               "Dividend Payout", 
-                                               "Valuation"])
+                tab_1, tab_2, tab_3 = st.tabs([f":red-background[Dividend Yield]", 
+                                               f":red-background[Dividend Payout]", 
+                                               f":red-background[Valuation]"])
                 with tab_1:
                     #st.write("##### Dividend Yield ")
                     dividends_and_splits_data = get_dividends_and_splits(_stock)
-                    st.dataframe(dividends_and_splits_data, width=400)
+                    st.dataframe(dividends_and_splits_data, hide_index=True)
                     
                 with tab_2:
                     #st.write("##### Dividend Payout")
                     dividend_payout = get_dividend_details(_stock)
-                    st.dataframe(dividend_payout, width=700, hide_index=True)
+                    st.dataframe(dividend_payout, hide_index=True)
 
                 with tab_3:
                     #st.write("##### Valuation")
                     valuation_data = get_valuation_measures(_stock)
-                    st.dataframe(valuation_data,width=300)
+                    st.dataframe(valuation_data,width=300, hide_index=True)
 
                 st.session_state.watchlist_history.append(
                     {"role": "system", "content": f"Here are the valuation metrics for {_stock}: {valuation_data}"})

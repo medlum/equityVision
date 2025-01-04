@@ -168,7 +168,9 @@ def get_dividends_and_splits(_stock):
         "Last split date": pd.to_datetime(info.get("lastSplitDate"), unit='s').strftime('%Y-%m-%d') if info.get("lastSplitDate") else None,
     }
 
-    return dividends_splits_data
+    dividends_splits_data_df = pd.DataFrame(list(dividends_splits_data.items()), columns=['Measure', 'Value'])
+
+    return dividends_splits_data_df
 
 
 def get_dividend_details(_stock):    
@@ -240,7 +242,10 @@ def get_valuation_measures(_stock):
         if valuation_measures[key]:
             valuation_measures[key] = f"{valuation_measures[key] / 1e9:.2f}B"
 
-    return valuation_measures
+    # Convert the dictionary to a DataFrame
+    valuation_df = pd.DataFrame(list(valuation_measures.items()), columns=['Measure', 'Value'])
+
+    return valuation_df
 
 
 # @st.cache_data

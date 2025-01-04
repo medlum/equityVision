@@ -45,7 +45,7 @@ model_select = sidebar_widget.selectbox(
 
 st.session_state.model_select = model_option.get(model_select)
 
-exchange = sidebar_widget.selectbox(label= ":blue[Stock Exchange]",
+exchange = sidebar_widget.selectbox(label= ":blue[**Stock Exchange**]",
                                     options=["SGX", "NYSE"])
 
 # Load the CSV file containing stock symbols and names
@@ -144,7 +144,7 @@ with col_bot:
 
 
 # Create a multiselect dropdown menu for stock selection
-tickers = sidebar_widget.multiselect(label= ":blue[Stock]", 
+tickers = sidebar_widget.multiselect(label= ":blue[**Stock**]", 
                                     options=list(stock_options.keys()), 
                                     format_func=lambda x: f"{x} - {stock_options[x]}", 
                                     placeholder="Select one or more", 

@@ -185,7 +185,9 @@ with st.sidebar:
                 st.write("No sell transactions available to update.")
 
 # Portfolio Summary, Buy Transactions, and Sell Transactions in tabs
-tab1, tab2, tab3 = st.tabs(["Portfolio Summary", "Buy Transactions", "Sell Transactions"])
+tab1, tab2, tab3 = st.tabs([f":red-background[Portfolio Summary]",
+                            f":red-background[Buy Transactions]",
+                            f":red-background[Sell Transactions]"])
 
 # Portfolio Summary tab
 with tab1:
@@ -213,19 +215,28 @@ with tab1:
         )
 
 
-        # Display total investment by stock exchange
-        st.write("###### :grey[Investment by Stock Exchange]")
-        st.dataframe(
-            st.session_state.total_investment_by_exchange.style.format({
-                'Total Investment': "{:.2f}"
-            }),
-            use_container_width=False,
-            hide_index=True
-        )
+
 
         #display_md.display("Visualization", font_size="28px", color='#1c51ba')
-        st.write("###### :grey[Portfolio Visualization]")
-        p1, p2, p3, p4, p5 = st.tabs(['Profit & Loss', 'Total Return', 'Total Dividends', 'Industry Distribution', 'Correlation'])
+        st.write("##### :blue[Portfolio Visualization]")
+        p1, p2, p3, p4, p5, p6 = st.tabs(['Profit & Loss', 
+                                      'Total Return', 
+                                      'Total Dividends', 
+                                      'Industry Distribution', 
+                                      'Correlation',
+                                      'Total Investment'])
+        
+        with p6:
+            # Display total investment by stock exchange
+            #st.write("###### :grey[Investment by Stock Exchange]")
+            st.dataframe(
+                st.session_state.total_investment_by_exchange.style.format({
+                    'Total Investment': "{:.2f}"
+                }),
+                use_container_width=False,
+                hide_index=True
+            )
+
 
         with p1:
             # Bar Chart for Unrealized P/L and Realized P/L
@@ -251,8 +262,11 @@ with tab1:
 
         with p2:
             # Pie Chart for Total Return
-            fig2 = px.pie(st.session_state.portfolio_summary, names='Ticker', values='Total Return',
-                        title='Distribution of Total Return')
+            fig2 = px.pie(st.session_state.portfolio_summary, 
+                          names='Ticker', 
+                          values='Total Return',
+                          hole=0.4,
+                          title='Distribution of Total Return')
             
                     # Update the layout to center the title
             fig2.update_layout(

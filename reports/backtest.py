@@ -13,6 +13,9 @@ if "tickers" in st.session_state:
 if "watchlist_name" in st.session_state:
     st.session_state.watchlist_name = st.session_state.watchlist_name
 
+if "market" in st.session_state:
+    st.session_state.market = st.session_state.market
+
 col_trade, col_bot = st.columns([0.7, 0.3])
 
 # --- Initialize the Inference Client with the API key ----#
@@ -30,9 +33,6 @@ if "model_select" not in st.session_state:
 # persist tickers selection if user switch page
 if "tickers" not in st.session_state:
     st.session_state.tickers = []
-
-
-
 
 if "strategy" not in st.session_state:
     st.session_state.strategy = None 

@@ -1,5 +1,11 @@
 import streamlit as st
 
+disclaimer_text = """Disclaimer:
+The information and recommendations provided by Finley are for educational and informational purposes only and should not be considered as financial advice or a guarantee of future results. Investments in the stock market carry risks, including the potential loss of capital, and past performance does not guarantee future performance.
+Before making any investment decisions, you should conduct your own research, evaluate your financial situation, and consider consulting with a licensed financial advisor. Finley does not have access to all market data and cannot account for unforeseen events or changes in market conditions.
+By using this service, you acknowledge and accept that all investment decisions are made at your own discretion and risk."""
+
+
 class DisplayMarkdown:
     def __init__(self, color="#737578", font_size="16px", tag="h2", text_align="justify"):
         self.color = color
@@ -20,6 +26,9 @@ class DisplayMarkdown:
         st.markdown(markdown_html, unsafe_allow_html=True)
 
 display_md = DisplayMarkdown()
+
+
+
 
 # Example usage:
 #display_md = DisplayMarkdown()

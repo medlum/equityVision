@@ -5,8 +5,28 @@ import json
 from pathlib import Path
 import matplotlib.pyplot as plt
 from utils_watchlist import *
-from utils_markdown import display_md
+from utils_markdown import display_md, disclaimer_text
 from utils_gdrive import upload_to_google_drive, load_data
+from utils_llm import client, model_option
+
+# initialize watchlist conversations 
+if 'watchlist_history' not in st.session_state:
+
+    st.session_state.watchlist_history = []
+
+    system_message = """You are friendly chatbot,Finley, that analyse stock investment information and assist user
+    in their investment decisions. Look back at the chat history to find information if needed. Minimize
+    summarizing the financial information as user can see it from the dashboard. """
+
+    st.session_state.watchlist_history.append(
+        {"role": "system", "content": f"{system_message}"})
+
+    st.session_state.watchlist_history.append(
+        {"role": "assistant", "content": f"I can help you to make sense of your stock watchlist performance and provide recommendations to help you choose the better investment."})
+    
+if "watchlist_model_select" not in st.session_state:
+    st.session_state.model_select = model_option.get("llama3.1-70b")
+
 
 # Insert at each page to interrupt the widget clean-up process
 # https://docs.streamlit.io/develop/concepts/multipage-apps/widgets
@@ -17,19 +37,38 @@ if "tickers" in st.session_state:
 if "watchlist_name" in st.session_state:
     st.session_state.watchlist_name = st.session_state.watchlist_name
 
-# initialize session state for text_input widget to remain stateful across page
+if "market" in st.session_state:
+    st.session_state.market = st.session_state.market
+
+if "watchlist_action" in st.session_state:
+    st.session_state.watchlist_action = st.session_state.watchlist_action
+
+# initialize for text_input widget to remain stateful across pages
+
 if "watchlist_name" not in st.session_state:
     st.session_state.watchlist_name = None
     
+if "market" not in st.session_state:
+    st.session_state.market = 'SGX'
+
+if "watchlist_action" not in st.session_state:
+    st.session_state.watchlist_action = "Use Existing"
 
 # f'user_data/{st.session_state.user_id}/watchlist' is created at utils_entry_pt
 # Ensure the user's watchlist folder exists
 watchlist_folder = Path(f'user_data/{st.session_state.user_id}/watchlist')
 watchlist_folder.mkdir(parents=True, exist_ok=True)
 
+model_select = st.sidebar.selectbox(
+    label="Pick a model to chat with Finley", options=model_option.keys(), index=2)
+
+
 # User selects a stock exchange 
 market = st.sidebar.selectbox(
-    label=":blue[**Stock Exchange**]", options=["SGX", "NYSE"])
+    label=":blue[**Stock Exchange**]", 
+    options=["SGX", "NYSE"],
+    key='market',
+    )
 
 if market:
     # file path to SGX or NYXSE company and symbols
@@ -57,14 +96,20 @@ if watchlists:
     watchlist_action = st.sidebar.radio(
         ":blue[**Watchlist Action**]",
         horizontal=True,
-        options=["Use Existing", "Create New"]
+        options=["Use Existing", "Create New"],
+        index=0,
+        #key='watchlist_action'
     )
 
     # if use existing, display stock in the watchlist 
     if watchlist_action == "Use Existing":
 
         watchlist_name = st.sidebar.selectbox(
-            "Select Watchlist", options=existing_watchlists, key='watchlist_name', index=0)
+            "Select Watchlist", 
+            options=existing_watchlists, 
+            index=0,
+            #key='watchlist_name'
+           )
 
     # if create new, allow user to enter text
     else:
@@ -98,7 +143,6 @@ selected_names = st.sidebar.multiselect(
 # Map selected names back to symbols
 selected_symbols = [name_to_symbol[name] for name in selected_names]
 
-
 # Save the watchlist
 if st.sidebar.button("Save Watchlist"):
 
@@ -116,68 +160,151 @@ if st.sidebar.button("Save Watchlist"):
     else:
         st.sidebar.error("Please enter a valid name for the watchlist.")
 
+col_watchlist, col_bot = st.columns([0.7, 0.3], gap='medium')
 
-# Fetch and display the stock data for the selected symbols
-if selected_symbols:
+with col_watchlist:
+    # Fetch and display the stock data for the selected symbols
+    if selected_symbols:
 
-    st.write(f"#### :blue[{watchlist_name}]")
-    fetch_and_display_price(selected_symbols)
+        st.write(f"#### :blue[{watchlist_name}]")
+        fetch_and_display_price(selected_symbols)
+        tab_names = [f":blue-background[{name}]" for name in selected_names]
+        tabs = st.tabs(tab_names)
 
-    tab_names = [f":blue-background[{name}]" for name in selected_names]
+        for tab, symbol in zip(tabs, selected_symbols):
+            with tab:
+                _stock = yf.Ticker(symbol)
 
-    tabs = st.tabs(tab_names)
-    # st.selectbox("symbol", options=selected_names)
+                #with st.container():
+                
+                st.write("##### Stock Price Chart")
+                plot_stock_data(symbol=symbol, period='1y')
 
-    # Display analyst recommendations
-    for tab, symbol in zip(tabs, selected_symbols):
-        with tab:
-            _stock = yf.Ticker(symbol)
-            # stock.history(period="2y")
+                # fetch dividends
+                st.write("##### Dividends Trends")
+                filtered_data = fetch_dividends(_stock)
+                plot_dividends(filtered_data)
 
-            with st.container():
-
-                col3, col4 = st.columns(
-                    2, gap="large", vertical_alignment="top")
-
-                with col3:
-                    plot_stock_data(symbol=symbol, period='1y')
-
-                with col4:
-                    # fetch dividends
-                    filtered_data = fetch_dividends(_stock)
-                    plot_dividends(filtered_data)
-
-                # with col5:
                 # fetch analysts recommendations
-                data, numeric_df, max_value = fetch_recommendations(
-                    _stock)
+                st.write("##### Analysts Recommendations")
+                data, numeric_df, max_value = fetch_recommendations(_stock)
                 if data is not None:
                     plot_recommendations(data, numeric_df, max_value)
                 else:
                     st.warning("Recommendation plot is not available")
 
-            with st.container(height=400):
-                col1, col2 = st.columns(
-                    2, gap="large", vertical_alignment="top")
-                with col1:
-                    # fetch earnings calendar
-                    display_md.display("Earnings Calendar")
-                    earnings_calendar = fetch_earnings_calendar(_stock)
-                    if not earnings_calendar:
-                        st.warning("Not Available")
-                    else:
-                        st.dataframe(earnings_calendar, hide_index=True)
+                #col1, col2 = st.columns([1,1], 
+                #                              gap="small", 
+                #                              vertical_alignment="top")
+                
+                tab_1, tab_2, tab_3 = st.tabs(["Dividend Yield", 
+                                               "Dividend Payout", 
+                                               "Valuation"])
+                with tab_1:
+                    #st.write("##### Dividend Yield ")
+                    dividends_and_splits_data = get_dividends_and_splits(_stock)
+                    st.dataframe(dividends_and_splits_data, width=400)
                     
+                with tab_2:
+                    #st.write("##### Dividend Payout")
+                    dividend_payout = get_dividend_details(_stock)
+                    st.dataframe(dividend_payout, width=700, hide_index=True)
 
-                #with col2:
-                    # fetch upgrades
-                    #display_md.display("Securities Firm Call")
-                    #upgrades_downgrades = fetch_upgrades_downgrades(_stock)
-                    #if upgrades_downgrades.empty:
-                    #    st.warning("Not Available")
-                    #else:
-                    #    st.write(upgrades_downgrades)
+                with tab_3:
+                    #st.write("##### Valuation")
+                    valuation_data = get_valuation_measures(_stock)
+                    st.dataframe(valuation_data,width=300)
 
-else:
-    st.write(f"#### :red[{watchlist_name}]")
-    st.write("No stocks selected.")
+                st.session_state.watchlist_history.append(
+                    {"role": "system", "content": f"Here are the valuation metrics for {_stock}: {valuation_data}"})
+                st.session_state.watchlist_history.append(
+                    {"role": "system", "content": f"Here are the dividends payout data for {_stock}: {dividend_payout}"})
+                st.session_state.watchlist_history.append(
+                    {"role": "system", "content": f"Here are the dividends splits data for {_stock}: {dividends_and_splits_data}"})
+                st.session_state.watchlist_history.append(
+                    {"role": "system", "content": f"Here are the analysts recommendations for {_stock}: {data}"})
+                
+    else:
+        st.write(f"#### :red[{watchlist_name}]")
+        st.write("No stocks selected.")
+
+
+
+
+
+with col_bot:
+    st.write("###")
+    st.write("**:blue[Chat with Finley]**")
+
+    messages = st.container(border=True, key="messages_container")
+
+    for msg in st.session_state.watchlist_history:
+        if msg['role'] != "system":
+            messages.chat_message(msg["role"]).write(msg["content"])
+
+    if user_input := st.chat_input("Ask a question..."):
+
+        # Append the user's input to the watchlist_history
+        st.session_state.watchlist_history.append(
+            {"role": "user", "content": user_input})
+
+        # write current chat on UI
+        messages.chat_message("user").write(user_input)
+
+        # ----- Create a placeholder for the streaming response ------- #
+        with messages.empty():
+            # Stream the response
+
+            stream = client.chat_completion(
+                model=st.session_state.model_select,
+                messages=st.session_state.watchlist_history,
+                temperature=0.6,
+                max_tokens=4524,
+                top_p=0.7,
+                stream=True,)
+
+            # Initialize an empty string to collect the streamed content
+            collected_response = ""
+
+            # Stream the response and update the placeholder in real-time
+            for chunk in stream:
+                if 'delta' in chunk.choices[0] and 'content' in chunk.choices[0].delta:
+                    collected_response += chunk.choices[0].delta.content
+                    st.chat_message("assistant").write(
+                        collected_response)
+
+        # Add the assistant's response to the conversation history
+        st.session_state.watchlist_history.append(
+            {"role": "assistant", "content": collected_response})
+
+    if st.button('Clear chat'):
+        st.session_state.watchlist_history = st.session_state.watchlist_history[:2]
+        messages.empty()
+        st.rerun()
+        #messages = st.container(border=True)
+
+    display_md.display(disclaimer_text, color="#7d8796", font_size="10px", tag="p")
+
+
+
+
+
+            # fetch earnings calendar
+            #    display_md.display("Earnings Calendar")
+            #    earnings_calendar = fetch_earnings_calendar(_stock)
+            #    if not earnings_calendar:
+            #        st.warning("Not Available")
+            #    else:
+            #        st.dataframe(earnings_calendar, hide_index=True)
+            #    
+
+
+            
+            # fetch upgrades
+            #if market == "NYSE":
+            #    display_md.display("Securities Firm Call")
+            #    upgrades_downgrades = fetch_upgrades_downgrades(_stock)
+            #if upgrades_downgrades.empty:
+            #    st.warning("Not Available")
+            #else:
+            #    st.write(upgrades_downgrades)

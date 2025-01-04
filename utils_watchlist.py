@@ -111,7 +111,7 @@ def fetch_and_display_price(selected_symbols):
     styled_df = create_styled_df(stock_data)
 
     if styled_df is not None:
-        with st.container(height=350):
+        with st.container():
             text = """Yahoo Finance price quote data is not real-time and 
             may lag by up to 10 minutes.\n For the most current and accurate 
             financial information, we recommend consulting a real-time data source.
@@ -145,13 +145,109 @@ def fetch_recommendations(_stock):
     max_value = numeric_df.sum(axis=1).max()
     return data, numeric_df, max_value
 
+@st.cache_data
+def fetch_upgrades_downgrades(_stock):
+    data = _stock.get_upgrades_downgrades()
+    return data
+
+def get_dividends_and_splits(_stock):
+    # Fetch the stock data using yfinance
+
+    info = _stock.info
+
+    dividends_splits_data = {
+        "Forward annual dividend rate": info.get("dividendRate"),
+        "Forward annual dividend yield %": round(info.get("dividendYield") * 100,2) if info.get("dividendYield") else None,
+        "Trailing annual dividend rate": info.get("trailingAnnualDividendRate"),
+        "Trailing annual dividend yield %": round(info.get("trailingAnnualDividendYield") * 100,2) if info.get("trailingAnnualDividendYield") else None,
+        "5-year average dividend yield": info.get("fiveYearAvgDividendYield"),
+        "Payout ratio %": info.get("payoutRatio" * 100) if info.get("payoutRatio") else None,
+        "Dividend date": pd.to_datetime(info.get("dividendDate"), unit='s').strftime('%Y-%m-%d') if info.get("dividendDate") else None,
+        "Ex-dividend date": pd.to_datetime(info.get("exDividendDate"), unit='s').strftime('%Y-%m-%d') if info.get("exDividendDate") else None,
+        "Last split factor": info.get("lastSplitFactor"),
+        "Last split date": pd.to_datetime(info.get("lastSplitDate"), unit='s').strftime('%Y-%m-%d') if info.get("lastSplitDate") else None,
+    }
+
+    return dividends_splits_data
+
+
+def get_dividend_details(_stock):    
+
+    #stock = yf.Ticker(ticker)
+    # Get historical dividend data
+    dividends = _stock.dividends
+
+    if dividends.empty:
+        data = [
+        {"Metric": "Payout frequency", "Value": "NA"},
+        {"Metric": "Total dividend last year", "Value": "NA"},
+        {"Metric": "Dividends last year", "Value": "NA"},
+    ]
+        return data
+
+
+    # Determine payout frequency and total dividends
+    dividends_per_year = dividends.resample('YE').count()  # Count dividends each year
+    total_dividends_per_year = dividends.resample('YE').sum()  # Sum dividends each year
+
+    # Extract most recent year's data
+    latest_year = dividends_per_year.index[-1].year
+    payouts_last_year = dividends_per_year.iloc[-1]
+    total_dividend_last_year = total_dividends_per_year.iloc[-1]
+
+    # Determine payout frequency
+    payout_frequency = "Quarterly" if payouts_last_year == 4 else (
+        "Semi-Annually" if payouts_last_year == 2 else (
+            "Annually" if payouts_last_year == 1 else f"{payouts_last_year} times/year"
+        )
+    )
+
+    # Convert the index to only dates
+    dividends_last_year = dividends[dividends.index.year == latest_year].copy()
+    dividends_last_year.index = dividends_last_year.index.date
+    dividends_last_year = {str(date): value for date, value in dividends_last_year.to_dict().items()}
+
+    # Prepare data for the DataFrame
+    data = [
+        {"Metric": "Payout frequency", "Value": payout_frequency},
+        {"Metric": "Total dividend last year", "Value": round(total_dividend_last_year,3)},
+        {"Metric": "Dividends last year", "Value": dividends_last_year},
+    ]
+    
+    # Convert to DataFrame
+    df = pd.DataFrame(data)
+    return df
+
+def get_valuation_measures(_stock):
+    # Fetch the stock data using yfinance
+    info = _stock.info
+
+    # Extract valuation-related data
+    valuation_measures = {
+            "Market cap": info.get("marketCap"),
+            "Enterprise value": info.get("enterpriseValue"),
+            "Trailing P/E": round(info.get("trailingPE"), 3) if isinstance(info.get("trailingPE"), (int, float)) else None,
+            "Forward P/E": round(info.get("forwardPE"), 3) if isinstance(info.get("forwardPE"), (int, float)) else None,
+            "PEG ratio (5-yr expected)": round(info.get("pegRatio"), 3) if isinstance(info.get("pegRatio"), (int, float)) else None,
+            "Price/sales": round(info.get("priceToSalesTrailing12Months"), 3) if isinstance(info.get("priceToSalesTrailing12Months"), (int, float)) else None,
+            "Price/book": round(info.get("priceToBook"), 3) if isinstance(info.get("priceToBook"), (int, float)) else None,
+            "Enterprise value/revenue": info.get("enterpriseToRevenue"),
+            "Enterprise value/EBITDA": info.get("enterpriseToEbitda"),
+        }
+
+    # Format large numbers (e.g., Market cap, Enterprise value) into billions
+    for key in ["Market cap", "Enterprise value"]:
+        if valuation_measures[key]:
+            valuation_measures[key] = f"{valuation_measures[key] / 1e9:.2f}B"
+
+    return valuation_measures
 
 
 # @st.cache_data
 def plot_recommendations(data, numeric_df, max_value):
 
     # Create a stacked bar chart
-    fig, ax = plt.subplots(figsize=(10, 2))
+    fig, ax = plt.subplots(figsize=(10, 3))
     data.plot(kind="bar", stacked=True, ax=ax, color=[
         "#1b4ca1", "#5473a8", "#cccc00", "#d15b4d", "#bd3728"])
     ax.set_xlabel("Time Period", fontsize=5)
@@ -225,11 +321,6 @@ def plot_dividends(filtered_data):
     st.pyplot(plt)
     plt.close()
 
-
-@st.cache_data
-def fetch_upgrades_downgrades(_stock):
-    data = _stock.get_upgrades_downgrades()
-    return data
 
 
 @st.cache_data

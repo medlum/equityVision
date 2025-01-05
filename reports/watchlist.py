@@ -182,7 +182,7 @@ with col_watchlist:
                           options=['5d', '1mo', '3mo', '6mo', '1y', '2y', '5y'],
                            key=symbol,
                            horizontal=True,
-                           index=5)
+                           index=4)
                 plot_stock_data(symbol=symbol, period=period)
 
                 # fetch dividends

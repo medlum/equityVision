@@ -7,14 +7,14 @@ from utils_markdown import display_md
 
 # Insert at each page to interrupt the widget clean-up process
 # https://docs.streamlit.io/develop/concepts/multipage-apps/widgets
-if "tickers" in st.session_state:
-    st.session_state.tickers = st.session_state.tickers
-
-if "watchlist_name" in st.session_state:
-    st.session_state.watchlist_name = st.session_state.watchlist_name
-
-if "market" in st.session_state:
-    st.session_state.market = st.session_state.market
+#if "tickers" in st.session_state:
+#    st.session_state.tickers = st.session_state.tickers
+#
+#if "watchlist_name" in st.session_state:
+#    st.session_state.watchlist_name = st.session_state.watchlist_name
+#
+#if "market" in st.session_state:
+#    st.session_state.market = st.session_state.market
 
 col_trade, col_bot = st.columns([0.7, 0.3])
 
@@ -148,7 +148,7 @@ tickers = sidebar_widget.multiselect(label= ":blue[**Stock**]",
                                     options=list(stock_options.keys()), 
                                     format_func=lambda x: f"{x} - {stock_options[x]}", 
                                     placeholder="Select one or more", 
-                                    key='tickers',
+                                    #key='tickers',
                                     )
 
 # persist selected tickers in session state to retain page memory
@@ -236,7 +236,8 @@ if len(tickers):
 
             # with st.container(height=700):
 
-            for ticker in st.session_state.tickers:
+            #for ticker in st.session_state.tickers:
+            for ticker in tickers:
 
                 # fetch stock data, backtest, financial ratios, dividends
                 hist, strategy = fetch_stock_data(ticker, period, sma_period, ema_period, bb_period,

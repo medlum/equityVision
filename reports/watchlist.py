@@ -31,17 +31,17 @@ if "watchlist_model_select" not in st.session_state:
 # Insert at each page to interrupt the widget clean-up process
 # https://docs.streamlit.io/develop/concepts/multipage-apps/widgets
 
-if "tickers" in st.session_state:
-    st.session_state.tickers = st.session_state.tickers
-    
-if "watchlist_name" in st.session_state:
-    st.session_state.watchlist_name = st.session_state.watchlist_name
-
-if "market" in st.session_state:
-    st.session_state.market = st.session_state.market
-
-if "watchlist_action" in st.session_state:
-    st.session_state.watchlist_action = st.session_state.watchlist_action
+#if "tickers" in st.session_state:
+#    st.session_state.tickers = st.session_state.tickers
+#    
+#if "watchlist_name" in st.session_state:
+#    st.session_state.watchlist_name = st.session_state.watchlist_name
+#
+#if "market" in st.session_state:
+#    st.session_state.market = st.session_state.market
+#
+#if "watchlist_action" in st.session_state:
+#    st.session_state.watchlist_action = st.session_state.watchlist_action
 
 # initialize for text_input widget to remain stateful across pages
 
@@ -67,7 +67,7 @@ model_select = st.sidebar.selectbox(
 market = st.sidebar.selectbox(
     label=":blue[**Stock Exchange**]", 
     options=["SGX", "NYSE"],
-    key='market',
+    #key='market',
     )
 
 if market:

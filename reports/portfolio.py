@@ -13,14 +13,14 @@ from utils_markdown import display_md
 # Insert at each page to interrupt the widget clean-up process
 # https://docs.streamlit.io/develop/concepts/multipage-apps/widgets
 
-if "tickers" in st.session_state:
-    st.session_state.tickers = st.session_state.tickers
-
-if "watchlist_name" in st.session_state:
-    st.session_state.watchlist_name = st.session_state.watchlist_name
-    
-if "market" in st.session_state:
-    st.session_state.market = st.session_state.market
+#if "tickers" in st.session_state:
+#    st.session_state.tickers = st.session_state.tickers
+#
+#if "watchlist_name" in st.session_state:
+#    st.session_state.watchlist_name = st.session_state.watchlist_name
+#    
+#if "market" in st.session_state:
+#    st.session_state.market = st.session_state.market
     
 # Set file path and initialize session state for buy and sell transactions 
 buy_transaction_fp = Path(f'user_data/{st.session_state.user_id}/portfolio/buy_transactions.csv')

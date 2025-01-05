@@ -196,7 +196,7 @@ with tab1:
             """
             Colors elements in a DataFrame red if negative, blue if positive.
             """
-            color = 'blue' if val >= 0 else 'red'
+            color = '#04b568' if val >= 0 else '#f5651d'
             return f'color: {color}'
 
         styled_summary = st.session_state.portfolio_summary.style.format({

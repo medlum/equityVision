@@ -329,7 +329,7 @@ def plot_dividends(filtered_data):
 
 
 @st.cache_data
-def plot_stock_data(symbol, period='1y'):
+def plot_stock_data(symbol, period):
     """
     Fetches and plots the historical stock data for a given symbol and period.
 

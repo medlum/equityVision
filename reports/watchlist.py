@@ -178,7 +178,12 @@ with col_watchlist:
                 #with st.container():
                 
                 st.write("###### Stock Price Chart")
-                plot_stock_data(symbol=symbol, period='1y')
+                period = st.radio(label=":blue[*Select stock price interval*]",
+                          options=['5d', '1mo', '3mo', '6mo', '1y', '2y', '5y'],
+                           key=symbol,
+                           horizontal=True,
+                           index=5)
+                plot_stock_data(symbol=symbol, period=period)
 
                 # fetch dividends
                 st.write("###### Dividends Trends")

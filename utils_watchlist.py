@@ -70,20 +70,22 @@ def fetch_stock_data(symbols):
 
 
 def create_styled_df(df):
-
     if not df.empty:
         last_trade_date = df['Last Trade Date'].iloc[0]
         st.write(f"Date: {last_trade_date}")
         df = df.drop(columns=['Last Trade Date'])
 
+        # Ensure numeric columns
+        numeric_columns = ['Current Price', 'Volume', 'Open', 'Prev Close', 'High (Day)', 'Low (Day)']
+        for col in numeric_columns:
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+
+        # Column formats
         column_formats = {
-            'Current Price': '{:.2f}',
-            'Volume': '{:,.0f}',
-            'Open': '{:.2f}',
-            'Prev Close': '{:.2f}' if 'Prev Close' in df.columns else None,
-            'High (Day)': '{:.2f}',
-            'Low (Day)': '{:.2f}',
+            col: '{:.2f}' for col in ['Current Price', 'Open', 'Prev Close', 'High (Day)', 'Low (Day)'] if col in df.columns
         }
+        column_formats['Volume'] = '{:,.0f}'
 
         def highlight_current_price(row):
             styles = [''] * len(row)
@@ -97,7 +99,7 @@ def create_styled_df(df):
         styled_df = (
             df.style
             .apply(highlight_current_price, axis=1)
-            .format({col: fmt for col, fmt in column_formats.items() if fmt})
+            .format(column_formats)
         )
         return styled_df
 

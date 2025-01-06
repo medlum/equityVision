@@ -87,69 +87,6 @@ if 'msg_history' not in st.session_state:
     st.session_state.msg_history.append(
         {"role": "assistant", "content": f"Pick a few stocks and a trading strategy at the sidebar. If you’re deciding to invest between Stock A and Stock B say for a 6–12 month time horizon, I can help you to make sense of their performance and provide recommendations to help you choose the better investment."})
 
-#--- chat bot column ---#
-with col_bot:
-    st.write("###")
-    st.write("**:blue[Chat with Finley]**")
-
-    messages = st.container(border=True, key="messages_container")
-
-    for msg in st.session_state.msg_history:
-        if msg['role'] != "system":
-            messages.chat_message(msg["role"]).write(msg["content"])
-
-    if user_input := st.chat_input("Ask a question..."):
-
-        # Append the user's input to the msg_history
-        st.session_state.msg_history.append(
-            {"role": "user", "content": user_input})
-
-        # write current chat on UI
-        messages.chat_message("user").write(user_input)
-
-        # Create a placeholder for the streaming response 
-        with messages.empty():
-            # Stream the response
-
-            stream = client.chat_completion(
-                model=model_option[model_select],
-                messages=st.session_state.msg_history,
-                temperature=0.6,
-                max_tokens=4524,
-                top_p=0.7,
-                stream=True,)
-
-            # Initialize an empty string to collect the streamed content
-            collected_response = ""
-
-            # Stream the response and update the placeholder in real-time
-            for chunk in stream:
-                if 'delta' in chunk.choices[0] and 'content' in chunk.choices[0].delta:
-                    collected_response += chunk.choices[0].delta.content
-                    st.chat_message("assistant").write(
-                        collected_response)
-
-        # Add the assistant's response to the conversation history
-        st.session_state.msg_history.append(
-            {"role": "assistant", "content": collected_response})
-
-        # Keep history to 3, pop 2nd item from the list
-        #if len(st.session_state.msg_history) >= 3:
-        #    st.session_state.msg_history.pop(1)
-
-    if st.button('Clear chat'):
-        st.session_state.msg_history = st.session_state.msg_history[:2]
-        messages.empty()
-        st.rerun()
-        #messages = st.container(border=True)
-
-
-    disclaimer_text = """Disclaimer:
-    The information and recommendations provided by Finley are for educational and informational purposes only and should not be considered as financial advice or a guarantee of future results. Investments in the stock market carry risks, including the potential loss of capital, and past performance does not guarantee future performance.
-    Before making any investment decisions, you should conduct your own research, evaluate your financial situation, and consider consulting with a licensed financial advisor. Finley does not have access to all market data and cannot account for unforeseen events or changes in market conditions.
-    By using this service, you acknowledge and accept that all investment decisions are made at your own discretion and risk."""
-
-    display_md.display(disclaimer_text, color="#7d8796", font_size="10px", tag="p")
 
 
 #--- Widget to select stock ---#
@@ -289,3 +226,67 @@ if len(tickers):
                     {"role": "system", "content": f"Here are the dividends {dividends_df} for {ticker}"})
                 
 
+
+#--- chat bot column ---#
+with col_bot:
+    st.write("###")
+    st.write("**:blue[Chat with Finley]**")
+
+    messages = st.container(border=True, key="messages_container")
+
+    for msg in st.session_state.msg_history:
+        if msg['role'] != "system":
+            messages.chat_message(msg["role"]).write(msg["content"])
+
+    if user_input := st.chat_input("Ask a question..."):
+
+        # Append the user's input to the msg_history
+        st.session_state.msg_history.append(
+            {"role": "user", "content": user_input})
+
+        # write current chat on UI
+        messages.chat_message("user").write(user_input)
+
+        # Create a placeholder for the streaming response 
+        with messages.empty():
+            # Stream the response
+
+            stream = client.chat_completion(
+                model=model_option[model_select],
+                messages=st.session_state.msg_history,
+                temperature=0.6,
+                max_tokens=4524,
+                top_p=0.7,
+                stream=True,)
+
+            # Initialize an empty string to collect the streamed content
+            collected_response = ""
+
+            # Stream the response and update the placeholder in real-time
+            for chunk in stream:
+                if 'delta' in chunk.choices[0] and 'content' in chunk.choices[0].delta:
+                    collected_response += chunk.choices[0].delta.content
+                    st.chat_message("assistant").write(
+                        collected_response)
+
+        # Add the assistant's response to the conversation history
+        st.session_state.msg_history.append(
+            {"role": "assistant", "content": collected_response})
+
+        # Keep history to 3, pop 2nd item from the list
+        #if len(st.session_state.msg_history) >= 3:
+        #    st.session_state.msg_history.pop(1)
+
+    if st.button('Clear chat'):
+        st.session_state.msg_history = st.session_state.msg_history[:2]
+        messages.empty()
+        st.rerun()
+        #messages = st.container(border=True)
+
+
+    disclaimer_text = """Disclaimer:
+    The information and recommendations provided by Finley are for educational and informational purposes only and should not be considered as financial advice or a guarantee of future results. Investments in the stock market carry risks, including the potential loss of capital, and past performance does not guarantee future performance.
+    Before making any investment decisions, you should conduct your own research, evaluate your financial situation, and consider consulting with a licensed financial advisor. Finley does not have access to all market data and cannot account for unforeseen events or changes in market conditions.
+    By using this service, you acknowledge and accept that all investment decisions are made at your own discretion and risk."""
+
+    display_md.display(disclaimer_text, color="#7d8796", font_size="10px", tag="p")

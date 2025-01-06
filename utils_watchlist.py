@@ -173,8 +173,6 @@ def get_dividends_and_splits(_stock):
     return dividends_splits_data_df
 
 
-import pandas as pd
-
 def get_dividend_details(_stock):    
     # Get historical dividend data
     dividends = _stock.dividends

@@ -173,20 +173,19 @@ def get_dividends_and_splits(_stock):
     return dividends_splits_data_df
 
 
-def get_dividend_details(_stock):    
+import pandas as pd
 
-    #stock = yf.Ticker(ticker)
+def get_dividend_details(_stock):    
     # Get historical dividend data
     dividends = _stock.dividends
 
     if dividends.empty:
         data = [
-        {"Metric": "Payout frequency", "Value": "NA"},
-        {"Metric": "Total dividend last year", "Value": "NA"},
-        {"Metric": "Dividends last year", "Value": "NA"},
-    ]
-        return data
-
+            {"Metric": "Payout frequency", "Value": "NA"},
+            {"Metric": "Total dividend last year", "Value": "NA"},
+            {"Metric": "Dividends last year", "Value": "NA"},
+        ]
+        return pd.DataFrame(data)
 
     # Determine payout frequency and total dividends
     dividends_per_year = dividends.resample('YE').count()  # Count dividends each year
@@ -207,18 +206,22 @@ def get_dividend_details(_stock):
     # Convert the index to only dates
     dividends_last_year = dividends[dividends.index.year == latest_year].copy()
     dividends_last_year.index = dividends_last_year.index.date
-    dividends_last_year = {str(date): value for date, value in dividends_last_year.to_dict().items()}
+
+    # Convert to dictionary and format as a string
+    dividends_last_year_dict = {str(date): value for date, value in dividends_last_year.to_dict().items()}
+    dividends_last_year_string = ", ".join(f"{date}: {value}" for date, value in dividends_last_year_dict.items())
 
     # Prepare data for the DataFrame
     data = [
         {"Metric": "Payout frequency", "Value": payout_frequency},
-        {"Metric": "Total dividend last year", "Value": round(total_dividend_last_year,3)},
-        {"Metric": "Dividends last year", "Value": dividends_last_year},
+        {"Metric": "Total dividend last year", "Value": round(total_dividend_last_year, 3)},
+        {"Metric": "Dividends last year", "Value": dividends_last_year_string},
     ]
     
     # Convert to DataFrame
     df = pd.DataFrame(data)
     return df
+
 
 def get_valuation_measures(_stock):
     # Fetch the stock data using yfinance
@@ -246,6 +249,38 @@ def get_valuation_measures(_stock):
     valuation_df = pd.DataFrame(list(valuation_measures.items()), columns=['Measure', 'Value'])
 
     return valuation_df
+
+
+def get_financial_highlights(_stock):
+    # Fetch the stock data using yfinance
+    info = _stock.info
+
+    # Extract financial highlights
+    financial_highlights = {
+        "Total revenue": info.get("totalRevenue"),
+        "Gross profit": info.get("grossProfits"),
+        "EBITDA": info.get("ebitda"),
+        "Net income": info.get("netIncomeToCommon"),
+        "Total debt": info.get("totalDebt"),
+        "Current debt": info.get("currentDebt"),
+        "Total cash": info.get("totalCash"),
+        "Free cash flow": info.get("freeCashflow"),
+        "Operating margin": round(info.get("operatingMargins"), 3) if isinstance(info.get("operatingMargins"), (int, float)) else None,
+        "Profit margin": round(info.get("profitMargins"), 3) if isinstance(info.get("profitMargins"), (int, float)) else None,
+        "Return on equity (ROE)": round(info.get("returnOnEquity"), 3) if isinstance(info.get("returnOnEquity"), (int, float)) else None,
+        "Return on assets (ROA)": round(info.get("returnOnAssets"), 3) if isinstance(info.get("returnOnAssets"), (int, float)) else None,
+    }
+
+    # Format large monetary values into billions
+    for key in ["Total revenue", "Gross profit", "EBITDA", "Net income", "Total debt", "Current debt", "Total cash", "Free cash flow"]:
+        if financial_highlights[key]:
+            financial_highlights[key] = f"{financial_highlights[key] / 1e9:.2f}B"
+
+    # Convert the dictionary to a DataFrame
+    financial_df = pd.DataFrame(list(financial_highlights.items()), columns=["Highlight", "Value"])
+
+    return financial_df
+
 
 
 # @st.cache_data

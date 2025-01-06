@@ -5,62 +5,74 @@ import streamlit as st
 from huggingface_hub import InferenceClient
 from utils_markdown import display_md
 
-# Insert at each page to interrupt the widget clean-up process
-# https://docs.streamlit.io/develop/concepts/multipage-apps/widgets
-#if "tickers" in st.session_state:
-#    st.session_state.tickers = st.session_state.tickers
-#
-#if "watchlist_name" in st.session_state:
-#    st.session_state.watchlist_name = st.session_state.watchlist_name
-#
-#if "market" in st.session_state:
-#    st.session_state.market = st.session_state.market
-
+#--- main layout ---#
 col_trade, col_bot = st.columns([0.7, 0.3])
 
-# --- Initialize the Inference Client with the API key ----#
+# --- setup LLM ----#
+# Initialize the Inference Client with the API key 
 client = InferenceClient(token=st.secrets.api_keys.huggingfacehub_api_token)
 
-# set LLM model
+# LLM model option
 model_option = {"qwen2.5-72b": "Qwen/Qwen2.5-72B-Instruct",
                 "llama3.3-70b": "meta-llama/Llama-3.3-70B-Instruct",
                 "llama3.1-70b": "meta-llama/Meta-Llama-3.1-70B-Instruct",
                 }
 
-if "model_select" not in st.session_state:
-    st.session_state.model_select = model_option.get("llama3.1-70b")
+#--- initialize session state ---#
 
-# persist tickers selection if user switch page
-if "tickers" not in st.session_state:
-    st.session_state.tickers = []
+# Initialize session state for tickers to retain state
+if "selected_tickers" not in st.session_state:
+    st.session_state.selected_tickers = {}
 
 if "strategy" not in st.session_state:
     st.session_state.strategy = None 
 
-# sidebar widgets
+# set 0 as value for index param in exchange selectbox
+if "selected_exchange" not in st.session_state:
+    st.session_state.selected_exchange = 0
+
+#--- sidebar widgets ---#
 sidebar_widget = st.sidebar
-# Streamlit app
+
+# pick a model
 model_select = sidebar_widget.selectbox(
-    label="Pick a model to chat with Finley", options=model_option.keys(), index=2)
+    label="Pick a model to chat with Finley",
+    options=model_option.keys(), 
+    index=1)
 
-st.session_state.model_select = model_option.get(model_select)
+# store session state as variable for index param in exchange selectbox
+current_exchange = st.session_state.selected_exchange
 
-exchange = sidebar_widget.selectbox(label= ":blue[**Stock Exchange**]",
-                                    options=["SGX", "NYSE"])
+exchange_option = ["SGX", "NYSE"]
+
+# User selects a stock exchange
+exchange = st.sidebar.selectbox(
+    label=":blue[**Stock Exchange**]", 
+    options=exchange_option,
+    index=current_exchange # refer to st.session_state.selected_exchange
+    )
+
+# return index of selected exchange and assign to index param of exchange selectbox
+# this to maintain exchange state
+st.session_state.selected_exchange = exchange_option.index(exchange)
 
 # Load the CSV file containing stock symbols and names
 # Create a dictionary for the dropdown menu
 try:
     stocks_df = pd.read_csv(f"./resource/{exchange}.csv")
+    
+    stock_options = dict(zip(stocks_df['Symbol'], stocks_df['Name']))
+    
+    # # store session state as variable for index param in tickers multiselect 
+    current_tickers = st.session_state.selected_tickers.get(exchange, [])
+
 except FileNotFoundError:
     st.error(
         "The csv file was not found. Please ensure the file is in the same directory as the script.")
     stocks_df = pd.DataFrame(columns=['Symbol', 'Name'])
 
-stock_options = dict(zip(stocks_df['Symbol'], stocks_df['Name']))
 
-
-# store chat conversations with session state
+#--- store chat conversations with session state ---#
 if 'msg_history' not in st.session_state:
 
     st.session_state.msg_history = []
@@ -75,7 +87,7 @@ if 'msg_history' not in st.session_state:
     st.session_state.msg_history.append(
         {"role": "assistant", "content": f"Pick a few stocks and a trading strategy at the sidebar. If you’re deciding to invest between Stock A and Stock B say for a 6–12 month time horizon, I can help you to make sense of their performance and provide recommendations to help you choose the better investment."})
 
-
+#--- chat bot column ---#
 with col_bot:
     st.write("###")
     st.write("**:blue[Chat with Finley]**")
@@ -95,12 +107,12 @@ with col_bot:
         # write current chat on UI
         messages.chat_message("user").write(user_input)
 
-        # ----- Create a placeholder for the streaming response ------- #
+        # Create a placeholder for the streaming response 
         with messages.empty():
             # Stream the response
 
             stream = client.chat_completion(
-                model=st.session_state.model_select,
+                model=model_option[model_select],
                 messages=st.session_state.msg_history,
                 temperature=0.6,
                 max_tokens=4524,
@@ -140,28 +152,27 @@ with col_bot:
     display_md.display(disclaimer_text, color="#7d8796", font_size="10px", tag="p")
 
 
-# User inputs
-
+#--- Widget to select stock ---#
 
 # Create a multiselect dropdown menu for stock selection
-tickers = sidebar_widget.multiselect(label= ":blue[**Stock**]", 
-                                    options=list(stock_options.keys()), 
-                                    format_func=lambda x: f"{x} - {stock_options[x]}", 
-                                    placeholder="Select one or more", 
-                                    #key='tickers',
-                                    )
+tickers = sidebar_widget.multiselect(
+    label=":blue[**Stock**]", 
+    options=list(stock_options.keys()), 
+    default=current_tickers, 
+    format_func=lambda x: f"{x} - {stock_options[x]}", 
+    placeholder="Select one or more"
+)
 
-# persist selected tickers in session state to retain page memory
-#st.session_state.tickers = tickers
-#if tickers:
-#    st.write(f'You selected: {tickers}')
+# Update session state with the selected tickers for the current exchange
+st.session_state.selected_tickers[exchange] = tickers
 
+#--- back test and valuation processing---#
 if len(tickers):
+
     strategy = sidebar_widget.selectbox(label=":blue[Trading Strategy]", options=trading_strategy, index=0)
     
     st.session_state.strategy = strategy
 
-    #if strategy != "":
     if strategy:
         # Create a selectbox for time period selection
         period = sidebar_widget.selectbox(":blue[Time Period]", [
@@ -225,12 +236,6 @@ if len(tickers):
                 ":blue[RSI Period (days)]", **params["rsi_period"])
             strategy_params[strategy].update({"period_select": {"RSI Period (days):" : rsi_period}})
 
-    # Button to trigger the analysis
-    #analyze_button = sidebar_widget.button(
-    #    'Analyze', on_click=on_button_click)
-
-    #if st.session_state.button_clicked:
-
 
         with col_trade:
 
@@ -256,7 +261,6 @@ if len(tickers):
 
                 with col1:
                     display_md.display(metrics)
-
 
                 # write financial ratios as dataframe
                 with col2:
@@ -285,4 +289,3 @@ if len(tickers):
                     {"role": "system", "content": f"Here are the dividends {dividends_df} for {ticker}"})
                 
 
-                #st.write(f"and the selected parameters: period = {period}, parameters = {strategy_params[strategy]['period_select']}")

@@ -9,7 +9,7 @@ from utils_markdown import display_md, disclaimer_text
 from utils_gdrive import upload_to_google_drive, load_data
 from utils_llm import client, model_option
 
-# initialize watchlist conversations 
+#---- initialize watchlist conversations ---#
 if 'watchlist_history' not in st.session_state:
 
     st.session_state.watchlist_history = []
@@ -24,59 +24,52 @@ if 'watchlist_history' not in st.session_state:
     st.session_state.watchlist_history.append(
         {"role": "assistant", "content": f"I can help you to make sense of your stock watchlist performance and provide recommendations to help you choose the better investment."})
     
-if "watchlist_model_select" not in st.session_state:
-    st.session_state.model_select = model_option.get("llama3.1-70b")
+
+model_select = st.sidebar.selectbox(
+    label="Pick a model to chat with Finley", options=model_option.keys(), index=1)
 
 
-# Insert at each page to interrupt the widget clean-up process
-# https://docs.streamlit.io/develop/concepts/multipage-apps/widgets
+#--- initalize session state ---#
 
-#if "tickers" in st.session_state:
-#    st.session_state.tickers = st.session_state.tickers
-#    
-#if "watchlist_name" in st.session_state:
-#    st.session_state.watchlist_name = st.session_state.watchlist_name
-#
-#if "market" in st.session_state:
-#    st.session_state.market = st.session_state.market
-#
-#if "watchlist_action" in st.session_state:
-#    st.session_state.watchlist_action = st.session_state.watchlist_action
+# set 0 as value for index param in exchange selectbox
+if "selected_exchange" not in st.session_state:
+    st.session_state.selected_exchange = 0
 
-# initialize for text_input widget to remain stateful across pages
+if "selected_watchlist" not in st.session_state:
+    st.session_state.selected_watchlist = {}
 
-if "watchlist_name" not in st.session_state:
-    st.session_state.watchlist_name = None
-    
-if "market" not in st.session_state:
-    st.session_state.market = 'SGX'
+#if "watchlist_action" not in st.session_state:
+#    st.session_state.watchlist_action = "Use Existing"
 
-if "watchlist_action" not in st.session_state:
-    st.session_state.watchlist_action = "Use Existing"
 
+#--- set filepath to user's watchlist ---#
 # f'user_data/{st.session_state.user_id}/watchlist' is created at utils_entry_pt
 # Ensure the user's watchlist folder exists
 watchlist_folder = Path(f'user_data/{st.session_state.user_id}/watchlist')
 watchlist_folder.mkdir(parents=True, exist_ok=True)
 
-model_select = st.sidebar.selectbox(
-    label="Pick a model to chat with Finley", options=model_option.keys(), index=2)
+# store session state as variable for index param in exchange selectbox
+current_exchange = st.session_state.selected_exchange
+exchange_option = ["SGX", "NYSE"]
 
-
-# User selects a stock exchange 
-market = st.sidebar.selectbox(
+# User selects a stock exchange
+exchange = st.sidebar.selectbox(
     label=":blue[**Stock Exchange**]", 
-    options=["SGX", "NYSE"],
-    #key='market',
+    options=exchange_option,
+    index=current_exchange # refer to st.session_state.selected_exchange
     )
 
-if market:
+if exchange:
+    # return index of selected exchange and assign to index param of exchange selectbox
+    # this to maintain exchange state
+    st.session_state.selected_exchange = exchange_option.index(exchange)
+    
     # file path to SGX or NYXSE company and symbols
-    file_path = Path(f'resource/{market}.csv')
+    file_path = Path(f'resource/{exchange}.csv')
 
     # filepath to user's selected companies in watch list
     # for load_watchlist() and save_watchlists()
-    watchlist_file_path = watchlist_folder / f'watchlist_{market}.json'
+    watchlist_file_path = watchlist_folder / f'watchlist_{exchange}.json'
 
     # Load the exchange data
     stock_data = load_data(file_path)
@@ -84,6 +77,11 @@ if market:
     # Load the existing watchlist 
     # -> watchlist returns dict {}
     watchlists = load_watchlists(watchlist_file_path)
+
+    #  store session state as variable for index param in watchlist_name selectbox 
+    # to retain state
+    current_watchlist = st.session_state.selected_watchlist.get(exchange, 0)
+
 
 # Dropdown to select existing watchlist or create new one
 
@@ -98,7 +96,6 @@ if watchlists:
         horizontal=True,
         options=["Use Existing", "Create New"],
         index=0,
-        #key='watchlist_action'
     )
 
     # if use existing, display stock in the watchlist 
@@ -107,9 +104,11 @@ if watchlists:
         watchlist_name = st.sidebar.selectbox(
             "Select Watchlist", 
             options=existing_watchlists, 
-            index=0,
-            #key='watchlist_name'
+            index=current_watchlist,            
            )
+        
+        # Update session state with the selected_watchlist based on the selected exchange
+        st.session_state.selected_watchlist[exchange] = existing_watchlists.index(watchlist_name)
 
     # if create new, allow user to enter text
     else:
@@ -192,19 +191,17 @@ with col_watchlist:
 
                 # fetch analysts recommendations
                 st.write("###### Analysts Recommendations")
-                data, numeric_df, max_value = fetch_recommendations(_stock)
-                if data is not None:
-                    plot_recommendations(data, numeric_df, max_value)
+                analyst_rec, numeric_df, max_value = fetch_recommendations(_stock)
+                if analyst_rec is not None:
+                    plot_recommendations(analyst_rec, numeric_df, max_value)
                 else:
                     st.warning("Recommendation plot is not available")
 
-                #col1, col2 = st.columns([1,1], 
-                #                              gap="small", 
-                #                              vertical_alignment="top")
                 
-                tab_1, tab_2, tab_3 = st.tabs([f":red-background[Dividend Yield]", 
+                tab_1, tab_2, tab_3, tab_4 = st.tabs([f":red-background[Dividend Yield]", 
                                                f":red-background[Dividend Payout]", 
-                                               f":red-background[Valuation]"])
+                                               f":red-background[Financial Valuation]",
+                                               f":red-background[Financial Highlights]"])
                 with tab_1:
                     #st.write("##### Dividend Yield ")
                     dividends_and_splits_data = get_dividends_and_splits(_stock)
@@ -220,6 +217,11 @@ with col_watchlist:
                     valuation_data = get_valuation_measures(_stock)
                     st.dataframe(valuation_data,width=300, hide_index=True)
 
+                with tab_4:
+                    financial_highlights = get_financial_highlights(_stock)
+                    st.dataframe(financial_highlights, height=460,hide_index=True)
+                    
+
                 st.session_state.watchlist_history.append(
                     {"role": "system", "content": f"Here are the valuation metrics for {_stock}: {valuation_data}"})
                 st.session_state.watchlist_history.append(
@@ -227,7 +229,9 @@ with col_watchlist:
                 st.session_state.watchlist_history.append(
                     {"role": "system", "content": f"Here are the dividends splits data for {_stock}: {dividends_and_splits_data}"})
                 st.session_state.watchlist_history.append(
-                    {"role": "system", "content": f"Here are the analysts recommendations for {_stock}: {data}"})
+                    {"role": "system", "content": f"Here are the analysts recommendations for {_stock}: {analyst_rec}"})
+                st.session_state.watchlist_history.append(
+                    {"role": "system", "content": f"Here are the financial highlights for {_stock}: {financial_highlights}"})
                 
     else:
         st.write(f"#### :red[{watchlist_name}]")
@@ -261,7 +265,7 @@ with col_bot:
             # Stream the response
 
             stream = client.chat_completion(
-                model=st.session_state.model_select,
+                model=model_option[model_select],
                 messages=st.session_state.watchlist_history,
                 temperature=0.6,
                 max_tokens=4524,
@@ -306,7 +310,7 @@ with col_bot:
 
             
             # fetch upgrades
-            #if market == "NYSE":
+            #if exchange == "NYSE":
             #    display_md.display("Securities Firm Call")
             #    upgrades_downgrades = fetch_upgrades_downgrades(_stock)
             #if upgrades_downgrades.empty:

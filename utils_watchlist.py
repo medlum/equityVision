@@ -267,8 +267,8 @@ def get_financial_highlights(_stock):
         "Free cash flow": info.get("freeCashflow"),
         "Operating margin": round(info.get("operatingMargins"), 3) if isinstance(info.get("operatingMargins"), (int, float)) else None,
         "Profit margin": round(info.get("profitMargins"), 3) if isinstance(info.get("profitMargins"), (int, float)) else None,
-        "Return on equity (ROE)": round(info.get("returnOnEquity"), 3) if isinstance(info.get("returnOnEquity"), (int, float)) else None,
-        "Return on assets (ROA)": round(info.get("returnOnAssets"), 3) if isinstance(info.get("returnOnAssets"), (int, float)) else None,
+        "Return on equity %": round(info.get("returnOnEquity") * 100, 2) if isinstance(info.get("returnOnEquity"), (int, float)) else None,
+        "Return on assets %": round(info.get("returnOnAssets") * 100, 2) if isinstance(info.get("returnOnAssets"), (int, float)) else None,
     }
 
     # Format large monetary values into billions
@@ -391,6 +391,9 @@ def plot_stock_data(symbol, period):
     st.pyplot(plt)
     plt.close()
 
+
+def clear_history():
+    st.session_state.watchlist_history = st.session_state.watchlist_history[:2]
 
 
 #def check_folder(service, parent_folder_id, user_id):

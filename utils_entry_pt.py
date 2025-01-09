@@ -13,6 +13,9 @@ import streamlit as st
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from utils_banner import breakingnews, data
+
+
 
 app_description = f"""
         EquityVision is an equity platform for investors and traders, offering backtesting tools
@@ -136,8 +139,10 @@ def find_user_credentials(user_id, password):
 
 
 def login():
+    breakingnews(data, '', 'filled') 
     col1, col2, col3 = st.columns(3)
     with col2:
+        
         st.title(":rainbow[EquityVision]")
 
         st.markdown(f"""

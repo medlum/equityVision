@@ -4,7 +4,9 @@ from utils_backtest import fetch_financial_ratios, backtest_strategy, plot_backt
 import streamlit as st
 from huggingface_hub import InferenceClient
 from utils_markdown import display_md
+from utils_banner import breakingnews, data
 
+breakingnews(data, '', 'filled') 
 #--- main layout ---#
 col_trade, col_bot = st.columns([0.7, 0.3])
 
@@ -85,7 +87,7 @@ if 'msg_history' not in st.session_state:
         {"role": "system", "content": f"{system_message}"})
 
     st.session_state.msg_history.append(
-        {"role": "assistant", "content": f"Pick a few stocks and a trading strategy at the sidebar. If you’re deciding to invest between Stock A and Stock B say for a 6–12 month time horizon, I can help you to make sense of their performance and provide recommendations to help you choose the better investment."})
+        {"role": "assistant", "content": f"Pick a few stocks and a trading strategy and I can help you to make sense of their performance and help you choose the better investment."})
 
 
 

@@ -8,20 +8,11 @@ from utils_gdrive import upload_to_google_drive, load_data
 import plotly.express as px
 import plotly.graph_objects as go
 from utils_markdown import display_md
+from utils_banner import breakingnews, data
 
 
-# Insert at each page to interrupt the widget clean-up process
-# https://docs.streamlit.io/develop/concepts/multipage-apps/widgets
-
-#if "tickers" in st.session_state:
-#    st.session_state.tickers = st.session_state.tickers
-#
-#if "watchlist_name" in st.session_state:
-#    st.session_state.watchlist_name = st.session_state.watchlist_name
-#    
-#if "market" in st.session_state:
-#    st.session_state.market = st.session_state.market
-    
+breakingnews(data, '', 'filled') 
+   
 # Set file path and initialize session state for buy and sell transactions 
 buy_transaction_fp = Path(f'user_data/{st.session_state.user_id}/portfolio/buy_transactions.csv')
 sell_transaction_fp = Path(f'user_data/{st.session_state.user_id}/portfolio/sell_transactions.csv')

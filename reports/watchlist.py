@@ -8,7 +8,10 @@ from utils_watchlist import *
 from utils_markdown import display_md, disclaimer_text
 from utils_gdrive import upload_to_google_drive, load_data
 from utils_llm import client, model_option
+from utils_banner import breakingnews, data
 
+
+breakingnews(data, '', 'filled') 
 #---- initialize watchlist conversations ---#
 if 'watchlist_history' not in st.session_state:
 
@@ -56,7 +59,8 @@ exchange_option = ["SGX", "NYSE"]
 exchange = st.sidebar.selectbox(
     label=":blue[**Stock Exchange**]", 
     options=exchange_option,
-    index=current_exchange # refer to st.session_state.selected_exchange
+    index=current_exchange, # refer to st.session_state.selected_exchange
+    on_change=clear_history
     )
 
 if exchange:
@@ -96,6 +100,7 @@ if watchlists:
         horizontal=True,
         options=["Use Existing", "Create New"],
         index=0,
+        on_change=clear_history
     )
 
     # if use existing, display stock in the watchlist 
@@ -104,7 +109,8 @@ if watchlists:
         watchlist_name = st.sidebar.selectbox(
             "Select Watchlist", 
             options=existing_watchlists, 
-            index=current_watchlist,            
+            index=current_watchlist,    
+            on_change=clear_history        
            )
         
         # Update session state with the selected_watchlist based on the selected exchange
@@ -219,7 +225,7 @@ with col_watchlist:
 
                 with tab_4:
                     financial_highlights = get_financial_highlights(_stock)
-                    st.dataframe(financial_highlights, height=460,hide_index=True)
+                    st.dataframe(financial_highlights, width = 300, height=460,hide_index=True)
                     
 
                 st.session_state.watchlist_history.append(

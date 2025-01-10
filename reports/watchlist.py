@@ -292,7 +292,7 @@ with col_bot:
         st.session_state.watchlist_history.append(
             {"role": "assistant", "content": collected_response})
 
-    if st.button('Clear chat'):
+    if st.button('Clear',type='primary', icon=":material/delete_forever:"):
         st.session_state.watchlist_history = st.session_state.watchlist_history[:2]
         messages.empty()
         st.rerun()

@@ -139,7 +139,7 @@ def find_user_credentials(user_id, password):
 
 
 def login():
-    breakingnews(data, '', 'filled') 
+    breakingnews(data, '', 'light') 
     col1, col2, col3 = st.columns(3)
     with col2:
         

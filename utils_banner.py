@@ -27,13 +27,13 @@ def breakingnews(results, label, variant):
               description=results,
               size='xs',
               radius='0px',
-              color="#205699",
-              # icon=True,
+              color="#92add4",
+              #icon=True,
               variant=variant,
               closable=True,
               banner=[False, True])
 
-
+@st.cache_data
 def get_indices_data(indices, days=5):
     """
     Fetch the last and previous closing prices for multiple indices.
@@ -58,7 +58,7 @@ def get_indices_data(indices, days=5):
                 previous_close = data['Close'].iloc[-2]
                 change = last_close - previous_close
                 pct_change = (change / previous_close) * 100
-                change_symbol = "🔺" if change > 0 else "🔻" if change < 0 else ""
+                change_symbol = "🔼" if change > 0 else "🔻" if change < 0 else ""
                 if change_symbol == "+":
                     results.append(f" **{name} :** {last_close:.2f} {change_symbol}{abs(pct_change):.2f}%")
                 else:
@@ -68,23 +68,23 @@ def get_indices_data(indices, days=5):
         except Exception as e:
             results[name] = {"Error": str(e)}
 
-    return '   '.join(results)
+    return ' | '.join(results)
 
 # Example usage
 # Index tickers
 indices = {
-    "Dow Jones": "^DJI", 
-    "S&P 500": "^GSPC",
-    "NASDAQ": "^IXIC",
-    "Russell 2000": "^RUT",
-    "VIX": "^VIX",
-    "US Dollar Index": "DX-Y.NYB",
-    "Crude Oil": "CL=F",
-    "Gold": "GC=F",
-    "FTSE 100": "^FTSE",
-    "STI": "^STI",
-    "Nikkei 225": "^N225",
-    "Hang Seng": "^HSI",
+    "Dow Jones".upper(): "^DJI", 
+    "S&P 500".upper(): "^GSPC",
+    "NASDAQ".upper(): "^IXIC",
+    "Russell 2000".upper(): "^RUT",
+    "VIX".upper(): "^VIX",
+    "US Dollar Index".upper(): "DX-Y.NYB",
+    "Crude Oil".upper(): "CL=F",
+    "Gold".upper(): "GC=F",
+    "FTSE 100".upper(): "^FTSE",
+    "STI".upper(): "^STI",
+    "Nikkei 225".upper(): "^N225",
+    "Hang Seng".upper(): "^HSI",
     "EUR/USD": "EURUSD=X",
     "USD/GBP": "GBPUSD=X",
     "USD/JPY": "JPY=X",

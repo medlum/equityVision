@@ -3,10 +3,12 @@ import pandas as pd
 from utils_backtest import fetch_financial_ratios, backtest_strategy, plot_backtest_results, strategy_params, fetch_dividends, plot_dividends, fetch_stock_data, plot_strategy, trading_strategy
 import streamlit as st
 from huggingface_hub import InferenceClient
-from utils_markdown import display_md
+from utils_markdown import display_md, clear_btn
 from utils_banner import breakingnews, data
-
+import streamlit_antd_components as sac
 breakingnews(data, '', 'filled') 
+
+
 #--- main layout ---#
 col_trade, col_bot = st.columns([0.7, 0.3])
 
@@ -279,7 +281,7 @@ with col_bot:
         #if len(st.session_state.msg_history) >= 3:
         #    st.session_state.msg_history.pop(1)
 
-    if st.button('Clear chat'):
+    if st.button('Clear',type='primary', icon=":material/delete_forever:"):
         st.session_state.msg_history = st.session_state.msg_history[:2]
         messages.empty()
         st.rerun()

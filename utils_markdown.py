@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit_antd_components as sac
 
 disclaimer_text = """Disclaimer:
 The information and recommendations provided by Finley are for educational and informational purposes only and should not be considered as financial advice or a guarantee of future results. Investments in the stock market carry risks, including the potential loss of capital, and past performance does not guarantee future performance.
@@ -28,6 +29,17 @@ class DisplayMarkdown:
 display_md = DisplayMarkdown()
 
 
+def clear_btn():
+    result = sac.buttons(
+        [sac.ButtonsItem(label='Clear')],
+        index=None,
+        size='xs',
+        radius='lg',
+        color='gray',
+        #variant='outlined',
+     )
+
+    return result
 
 
 # Example usage:

@@ -29,17 +29,17 @@ class DisplayMarkdown:
 display_md = DisplayMarkdown()
 
 
-def clear_btn():
-    result = sac.buttons(
-        [sac.ButtonsItem(label='Clear')],
-        index=None,
-        size='xs',
-        radius='lg',
-        color='gray',
-        #variant='outlined',
-     )
-
-    return result
+#def clear_btn():
+#    result = sac.buttons(
+#        [sac.ButtonsItem(label='Clear')],
+#        index=None,
+#        size='xs',
+#        radius='lg',
+#        color='gray',
+#        #variant='outlined',
+#     )
+#
+#    return result
 
 
 # Example usage:

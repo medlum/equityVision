@@ -139,10 +139,9 @@ def find_user_credentials(user_id, password):
 
 
 def login():
-    breakingnews(data, '', 'light') 
     col1, col2, col3 = st.columns(3)
     with col2:
-        
+        breakingnews(data, '', 'light') 
         st.title(":rainbow[EquityVision]")
 
         st.markdown(f"""
@@ -155,23 +154,23 @@ def login():
         login_state = find_user_credentials(user_id, password)
 
         if login_state:
+            with st.status("Logging in...", expanded=True):
+                drive = get_gdrive_service()
+                st.session_state.logged_in = True
+                st.session_state.drive = drive
+                st.session_state.user_id = user_id
+                st.success(f"Successfully authenticated as: {user_id}")
 
-            drive = get_gdrive_service()
-            st.session_state.logged_in = True
-            st.session_state.drive = drive
-            st.session_state.user_id = user_id
-            st.success(f"Successfully authenticated as: {user_id}")
+                folder_id = "19OEoGnaj2aE4edVMVvA8eHdF7BI_7H4x"
+                local_path = Path("./user_data") / user_id
+                local_path.mkdir(parents=True, exist_ok=True)
 
-            folder_id = "19OEoGnaj2aE4edVMVvA8eHdF7BI_7H4x"
-            local_path = Path("./user_data") / user_id
-            local_path.mkdir(parents=True, exist_ok=True)
+                user_folder_id = check_and_create_user_folder(
+                    drive, folder_id, user_id)
 
-            user_folder_id = check_and_create_user_folder(
-                drive, folder_id, user_id)
-
-            download_drive_contents(drive, user_folder_id, local_path)
-            st.success(f"Successfully downloaded to: {local_path}")
-            st.rerun()
+                download_drive_contents(drive, user_folder_id, local_path)
+                st.success(f"Successfully downloaded to: {local_path}")
+                st.rerun()
 
 
 

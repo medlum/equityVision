@@ -11,7 +11,7 @@ from utils_markdown import display_md
 from utils_banner import breakingnews, data
 
 
-breakingnews(data, '', 'filled') 
+breakingnews(data, '', 'light') 
    
 # Set file path and initialize session state for buy and sell transactions 
 buy_transaction_fp = Path(f'user_data/{st.session_state.user_id}/portfolio/buy_transactions.csv')

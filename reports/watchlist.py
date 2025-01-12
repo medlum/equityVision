@@ -11,7 +11,7 @@ from utils_llm import client, model_option
 from utils_banner import breakingnews, data
 
 
-breakingnews(data, '', 'filled') 
+breakingnews(data, '', 'light') 
 #---- initialize watchlist conversations ---#
 if 'watchlist_history' not in st.session_state:
 
@@ -149,8 +149,7 @@ selected_names = st.sidebar.multiselect(
 selected_symbols = [name_to_symbol[name] for name in selected_names]
 
 # Save the watchlist
-if st.sidebar.button("Save Watchlist"):
-
+if st.sidebar.button("Save Watchlist", type='primary', icon=":material/bookmark_add:"):
     if watchlist_name:
         # put the created watchlist as the key to watchlists {}
         # and the symbols as the value 
@@ -211,7 +210,7 @@ with col_watchlist:
                 with tab_1:
                     #st.write("##### Dividend Yield ")
                     dividends_and_splits_data = get_dividends_and_splits(_stock)
-                    st.dataframe(dividends_and_splits_data, hide_index=True)
+                    st.dataframe(dividends_and_splits_data, hide_index=True, width=400)
                     
                 with tab_2:
                     #st.write("##### Dividend Payout")

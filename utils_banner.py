@@ -5,6 +5,8 @@ import streamlit_antd_components as sac
 import requests
 
 from bs4 import BeautifulSoup
+
+
 def CNAheadlines(genre: str):
 
     url = "https://www.channelnewsasia.com"
@@ -27,13 +29,13 @@ def breakingnews(results, label, variant):
               description=results,
               size='xs',
               radius='0px',
-              color="#92add4",
+              color="#705302",
               #icon=True,
               variant=variant,
               closable=True,
               banner=[False, True])
 
-@st.cache_data
+#@st.cache_data
 def get_indices_data(indices, days=5):
     """
     Fetch the last and previous closing prices for multiple indices.

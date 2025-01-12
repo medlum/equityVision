@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import matplotlib.pyplot as plt
 from utils_watchlist import *
-from utils_markdown import display_md, disclaimer_text
+from utils_markdown import display_md, disclaimer_text, quote_text
 from utils_gdrive import upload_to_google_drive, load_data
 from utils_llm import client, model_option
 from utils_banner import breakingnews, data
@@ -38,11 +38,9 @@ model_select = st.sidebar.selectbox(
 if "selected_exchange" not in st.session_state:
     st.session_state.selected_exchange = 0
 
+# to store key as  SGX or NYSE and value as integer to index watchlist
 if "selected_watchlist" not in st.session_state:
     st.session_state.selected_watchlist = {}
-
-#if "watchlist_action" not in st.session_state:
-#    st.session_state.watchlist_action = "Use Existing"
 
 
 #--- set filepath to user's watchlist ---#
@@ -58,7 +56,7 @@ exchange_option = ["SGX", "NYSE"]
 # User selects a stock exchange
 exchange = st.sidebar.selectbox(
     label=":blue[**Stock Exchange**]", 
-    options=exchange_option,
+    options=exchange_option, 
     index=current_exchange, # refer to st.session_state.selected_exchange
     on_change=clear_history
     )
@@ -83,9 +81,8 @@ if exchange:
     watchlists = load_watchlists(watchlist_file_path)
 
     #  store session state as variable for index param in watchlist_name selectbox 
-    # to retain state
+    # to retain state, current_watchlist is integer
     current_watchlist = st.session_state.selected_watchlist.get(exchange, 0)
-
 
 # Dropdown to select existing watchlist or create new one
 
@@ -105,19 +102,27 @@ if watchlists:
 
     # if use existing, display stock in the watchlist 
     if watchlist_action == "Use Existing":
-
-        watchlist_name = st.sidebar.selectbox(
-            "Select Watchlist", 
-            options=existing_watchlists, 
-            index=current_watchlist,    
-            on_change=clear_history        
-           )
+        #watchlist_name = st.sidebar.selectbox(
+        #    "Select Watchlist", 
+        #    options=existing_watchlists, 
+        #    index=current_watchlist,  #store as session state to retain selection
+        #    on_change=clear_history        
+        #   )
         
+        # watchlist_name is integer at this part of the code
+        watchlist_name = st.sidebar.pills(
+            "Select Watchlist",
+            options=existing_watchlists,
+            default=existing_watchlists[current_watchlist] if current_watchlist < len(existing_watchlists) else 0,
+            on_change=clear_history
+        )
+
+
         # Update session state with the selected_watchlist based on the selected exchange
-        st.session_state.selected_watchlist[exchange] = existing_watchlists.index(watchlist_name)
+        st.session_state.selected_watchlist[exchange] = existing_watchlists.index(watchlist_name) # since watchlist_name is an integer, we can use index() to find the name of the existing watch_list
 
     # if create new, allow user to enter text
-    else:
+    elif watchlist_action == "Create New":
         watchlist_name = st.sidebar.text_input(
             "Enter a new watchlist name", "New Watchlist")
 
@@ -169,8 +174,9 @@ col_watchlist, col_bot = st.columns([0.7, 0.3], gap='medium')
 with col_watchlist:
     # Fetch and display the stock data for the selected symbols
     if selected_symbols:
-
-        st.write(f"#### :blue[{watchlist_name}]")
+        
+        #display_md.display(quote_text, color="#434a45", font_size="10px", tag='p')
+        st.write(f"#### :grey[{watchlist_name}]")
         fetch_and_display_price(selected_symbols)
         tab_names = [f":blue-background[{name}]" for name in selected_names]
         tabs = st.tabs(tab_names)

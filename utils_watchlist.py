@@ -72,7 +72,7 @@ def fetch_stock_data(symbols):
 def create_styled_df(df):
     if not df.empty:
         last_trade_date = df['Last Trade Date'].iloc[0]
-        st.write(f"Date: {last_trade_date}")
+        st.write(f":grey[Date : {last_trade_date}]")
         df = df.drop(columns=['Last Trade Date'])
 
         # Ensure numeric columns
@@ -114,14 +114,9 @@ def fetch_and_display_price(selected_symbols):
 
     if styled_df is not None:
         with st.container():
-            text = """Yahoo Finance price quote data is not real-time and 
-            may lag by up to 10 minutes.\n For the most current and accurate 
-            financial information, we recommend consulting a real-time data source.
-            """
-            display_md.display(text, color="#434a45", font_size="10px", tag='p')
             st.dataframe(styled_df, hide_index=True, use_container_width=True)
-
-        if st.button("Refresh Price"):
+        # button("Save Watchlist", type='primary', icon=":material/bookmark_add:"):
+        if st.button("Refresh Price",  type='primary',):
             st.rerun()
 
 

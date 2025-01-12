@@ -23,5 +23,10 @@
         "K71U.SI",
         "T82U.SI",
         "C2PU.SI"
+    ],
+    "Banks and Financial Stocks": [
+        "D05.SI",
+        "O39.SI",
+        "U11.SI"
     ]
 }

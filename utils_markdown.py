@@ -6,7 +6,10 @@ The information and recommendations provided by Finley are for educational and i
 Before making any investment decisions, you should conduct your own research, evaluate your financial situation, and consider consulting with a licensed financial advisor. Finley does not have access to all market data and cannot account for unforeseen events or changes in market conditions.
 By using this service, you acknowledge and accept that all investment decisions are made at your own discretion and risk."""
 
-
+quote_text = """Price quote is not real-time and 
+            may lag by up to 10 minutes.\n For the most current and accurate 
+            financial information, we recommend consulting a real-time data source.
+            """
 class DisplayMarkdown:
     def __init__(self, color="#737578", font_size="16px", tag="h2", text_align="justify"):
         self.color = color

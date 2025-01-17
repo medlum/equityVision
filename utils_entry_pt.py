@@ -13,14 +13,14 @@ import streamlit as st
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from utils_banner import breakingnews, data
+from utils_banner import breakingnews, data, news
 
 
 
 app_description = f"""
         EquityVision is an equity platform for investors and traders, offering backtesting tools
         to evaluate trading strategies, portfolio tracking to monitor returns, and watchlist creation
-        to track favorite stocks. A state of the art chatbot is integerated to provide real-time assistance and insights,
+        to track favorite stocks. A state-of-the-art chatbot is integerated to provide real-time assistance and insights,
         empowering users to make smarter investment decisions."""
 
 #PARENT_FOLDER_ID = "19OEoGnaj2aE4edVMVvA8eHdF7BI_7H4x"
@@ -139,38 +139,50 @@ def find_user_credentials(user_id, password):
 
 
 def login():
-    col1, col2, col3 = st.columns(3)
-    with col2:
-        breakingnews(data, '', 'light') 
-        st.title(":rainbow[EquityVision]")
+    #col1, col2, col3 = st.columns(3)
+    #with col2:
+        breakingnews(news, '', 'filled') 
+        
 
-        st.markdown(f"""
-            <p style='color:#737578; font-size: 16px; text-align: justify'>{app_description}</p>
+        col1, col2, col3, col4,  = st.columns(4)
+
+        # Distribute data across columns
+        columns = [col1, col2, col3, col4]
+        for i, (name, value, delta) in enumerate(data):
+            col = columns[i % 4]  # Cycle through columns
+            with col:
+                st.metric(label=f":blue[{name}]", value=value, delta=delta, border=True)
+
+
+
+        with st.sidebar:
+            st.title(":rainbow[EquityVision]")
+            # User input for login
+            user_id = st.text_input(f":blue[User ID]")
+            password = st.text_input(":blue[Password]", type="password")
+            st.markdown(f"""
+            <p style='color:#737578; font-size: 10px; text-align: justify'>{app_description}</p>
             """, unsafe_allow_html=True)
+            login_state = find_user_credentials(user_id, password)
 
-        # User input for login
-        user_id = st.text_input("User ID")
-        password = st.text_input("Password", type="password")
-        login_state = find_user_credentials(user_id, password)
+            if login_state:
+                with st.status("Logging in...", expanded=False):
+                    drive = get_gdrive_service()
+                    st.session_state.logged_in = True
+                    st.session_state.drive = drive
+                    st.session_state.user_id = user_id
+                    st.success(f"Successfully authenticated as: {user_id}")
 
-        if login_state:
-            with st.status("Logging in...", expanded=True):
-                drive = get_gdrive_service()
-                st.session_state.logged_in = True
-                st.session_state.drive = drive
-                st.session_state.user_id = user_id
-                st.success(f"Successfully authenticated as: {user_id}")
+                    folder_id = "19OEoGnaj2aE4edVMVvA8eHdF7BI_7H4x"
+                    local_path = Path("./user_data") / user_id
+                    local_path.mkdir(parents=True, exist_ok=True)
 
-                folder_id = "19OEoGnaj2aE4edVMVvA8eHdF7BI_7H4x"
-                local_path = Path("./user_data") / user_id
-                local_path.mkdir(parents=True, exist_ok=True)
+                    user_folder_id = check_and_create_user_folder(
+                        drive, folder_id, user_id)
 
-                user_folder_id = check_and_create_user_folder(
-                    drive, folder_id, user_id)
-
-                download_drive_contents(drive, user_folder_id, local_path)
-                st.success(f"Successfully downloaded to: {local_path}")
-                st.rerun()
+                    download_drive_contents(drive, user_folder_id, local_path)
+                    st.success(f"Successfully downloaded to: {local_path}")
+                    st.rerun()
 
 
 

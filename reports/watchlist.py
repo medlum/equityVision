@@ -8,18 +8,18 @@ from utils_watchlist import *
 from utils_markdown import display_md, disclaimer_text, quote_text
 from utils_gdrive import upload_to_google_drive, load_data
 from utils_llm import client, model_option
-from utils_banner import breakingnews, data
+from utils_banner import breakingnews, news
 
 
-breakingnews(data, '', 'light') 
+breakingnews(news, '', 'filled')  
 #---- initialize watchlist conversations ---#
 if 'watchlist_history' not in st.session_state:
 
     st.session_state.watchlist_history = []
 
-    system_message = """You are friendly chatbot,Finley, that analyse stock investment information and assist user
-    in their investment decisions. Look back at the chat history to find information if needed. Minimize
-    summarizing the financial information as user can see it from the dashboard. """
+    system_message = """You are friendly chatbot,Finley, that analyse stocks information to assist the user
+    in his or her investment decisions. Use the valuation, dividends, analyst recommendations and financial highlights to evaluate the  
+    which stocks are better for investments."""
 
     st.session_state.watchlist_history.append(
         {"role": "system", "content": f"{system_message}"})
@@ -29,7 +29,7 @@ if 'watchlist_history' not in st.session_state:
     
 
 model_select = st.sidebar.selectbox(
-    label="Pick a model to chat with Finley", options=model_option.keys(), index=1)
+    label="**:blue[Pick a model to chat with Finley]**", options=model_option.keys(), index=1)
 
 
 #--- initalize session state ---#
@@ -143,7 +143,7 @@ name_to_symbol = dict(zip(stock_data['Name'], stock_data['Symbol']))
 
 # Multi-select widget for selecting stocks
 selected_names = st.sidebar.multiselect(
-    'Select Stocks',
+    '**:blue[Select Stocks]**',
     options=stock_data['Name'],
     #default=None
     default=[name for name, symbol in name_to_symbol.items()
@@ -243,6 +243,7 @@ with col_watchlist:
                     {"role": "system", "content": f"Here are the analysts recommendations for {_stock}: {analyst_rec}"})
                 st.session_state.watchlist_history.append(
                     {"role": "system", "content": f"Here are the financial highlights for {_stock}: {financial_highlights}"})
+
                 
     else:
         st.write(f"#### :red[{watchlist_name}]")

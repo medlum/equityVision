@@ -3,9 +3,27 @@ import streamlit as st
 from utils_markdown import display_md
 import streamlit_antd_components as sac
 import requests
-
 from bs4 import BeautifulSoup
 
+def yahooFinance():
+                                                                                                                                                                                                    
+    url = "https://sg.finance.yahoo.com/topic/latestnews/"                                                                                                                                                
+    response = requests.get(url)                                                                                                                                                                          
+    soup = BeautifulSoup(response.text, 'html.parser')                                                                                                                                                    
+                                                                                                                                                                                                        
+    div_elements = soup.find_all('div', class_='content yf-18q3fnf')                                                                                                                                      
+    output = ""                     
+    screener = []                                                                                                                                                                      
+    for i, div in enumerate(div_elements):                                                                                                                                                                
+        a_tag = div.find('a')                                                                                                                                                                             
+        title = a_tag.get('title')                                                                                                                                                                        
+        href = a_tag.get('href')                                                                                                                                                                          
+        output += f"{i+1}. News: {title}, URL: {href}\n"
+        screener.append(title)
+        #st.markdown(f' <a href="{href}" target="_blank" style="color:#1169f7; text-decoration: none;">{i+1}. {title}</a>',
+        #            unsafe_allow_html=True)
+    return '. '.join(screener)
+    
 
 def CNAheadlines(genre: str):
 
@@ -27,9 +45,9 @@ def breakingnews(results, label, variant):
     """
     sac.alert(label=label,
               description=results,
-              size='xs',
+              size='sm',
               radius='0px',
-              color="#705302",
+              #color="#705302",
               #icon=True,
               variant=variant,
               closable=True,
@@ -60,17 +78,20 @@ def get_indices_data(indices, days=5):
                 previous_close = data['Close'].iloc[-2]
                 change = last_close - previous_close
                 pct_change = (change / previous_close) * 100
-                change_symbol = "🔼" if change > 0 else "🔻" if change < 0 else ""
-                if change_symbol == "+":
-                    results.append(f" **{name} :** {last_close:.2f} {change_symbol}{abs(pct_change):.2f}%")
-                else:
-                    results.append(f" **{name} :** {last_close:.2f} {change_symbol}{abs(pct_change):.2f}%")
+                results.append((name, f"{last_close:.2f}", f"{pct_change:.2f}%"))
+                #change_symbol = "🔼" if change > 0 else "🔻" if change < 0 else ""
+                #if change_symbol == "+":
+                #    results.append(f" **{name} :** {last_close:.2f} {change_symbol}{abs(pct_change):.2f}%")
+                #else:
+                #    results.append(f" **{name} :** {last_close:.2f} {change_symbol}{abs(pct_change):.2f}%")
             else:
                 results.append("Not enough data available.")
         except Exception as e:
             results[name] = {"Error": str(e)}
+    
+    return results
+    #return ' | '.join(results)
 
-    return ' | '.join(results)
 
 # Example usage
 # Index tickers
@@ -93,11 +114,12 @@ indices = {
     "USD/SGD": "SGD=X",
 }
 data = get_indices_data(indices)
-
-#breakingnews(data, '', 'filled')  # component_sidebar
+news = yahooFinance()  # utils
+#st.write(news)
+#breakingnews(news, '', 'filled')  # component_sidebar
 
 # -----set up news ticker ------#
-news = CNAheadlines("news")  # utils
+#news = CNAheadlines("news")  # utils
 #breakingnews(news, 'Breaking News...', 'outlined')  # component_sidebar
 
 

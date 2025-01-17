@@ -4,10 +4,10 @@ from utils_backtest import fetch_financial_ratios, backtest_strategy, plot_backt
 import streamlit as st
 from huggingface_hub import InferenceClient
 from utils_markdown import display_md
-from utils_banner import breakingnews, data
+from utils_banner import breakingnews, news
 import streamlit_antd_components as sac
 
-breakingnews(data, '', 'light') 
+breakingnews(news, '', 'filled') 
 
 #--- main layout ---#
 col_trade, col_bot = st.columns([0.7, 0.3])
@@ -40,7 +40,7 @@ sidebar_widget = st.sidebar
 
 # pick a model
 model_select = sidebar_widget.selectbox(
-    label="Pick a model to chat with Finley",
+    label= "**:blue[Pick a model to chat with Finley]**",
     options=model_option.keys(), 
     index=1)
 

@@ -125,6 +125,6 @@ data = get_indices_data(indices)
 # -----set up news ticker ------#
 news = CNAheadlines("news")  # utils
 #print(news)
-#breakingnews(news, 'Breaking News...', 'outlined')  # component_sidebar
+breakingnews(news, 'Breaking News...', 'outlined')  # component_sidebar
 
 

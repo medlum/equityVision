@@ -6,6 +6,7 @@ from huggingface_hub import InferenceClient
 from utils_markdown import display_md
 from utils_banner import breakingnews, news
 import streamlit_antd_components as sac
+from utils_llm import initialize_inferenceclient, model_option
 
 breakingnews(news, '', 'filled') 
 
@@ -14,13 +15,8 @@ col_trade, col_bot = st.columns([0.7, 0.3])
 
 # --- setup LLM ----#
 # Initialize the Inference Client with the API key 
-client = InferenceClient(token=st.secrets.api_keys.huggingfacehub_api_token)
+client = initialize_inferenceclient()
 
-# LLM model option
-model_option = {"qwen2.5-72b": "Qwen/Qwen2.5-72B-Instruct",
-                "llama3.3-70b": "meta-llama/Llama-3.3-70B-Instruct",
-                "llama3.1-70b": "meta-llama/Meta-Llama-3.1-70B-Instruct",
-                }
 
 #--- initialize session state ---#
 
@@ -252,26 +248,26 @@ with col_bot:
         messages.chat_message("user").write(user_input)
 
         # Create a placeholder for the streaming response 
-        with messages.empty():
-            # Stream the response
 
-            stream = client.chat_completion(
+        # Stream the response
+        placeholder = st.empty()
+        stream = client.chat.completions.create(
                 model=model_option[model_select],
                 messages=st.session_state.msg_history,
-                temperature=0.6,
-                max_tokens=4524,
+                temperature=0.2,
+                max_tokens=5524,
                 top_p=0.7,
-                stream=True,)
+                stream=True,
+                )
 
-            # Initialize an empty string to collect the streamed content
-            collected_response = ""
 
-            # Stream the response and update the placeholder in real-time
-            for chunk in stream:
-                if 'delta' in chunk.choices[0] and 'content' in chunk.choices[0].delta:
-                    collected_response += chunk.choices[0].delta.content
-                    st.chat_message("assistant").write(
-                        collected_response)
+        # Initialize an empty string to collect the streamed content
+        collected_response = ""
+
+        # Stream the response and update the placeholder in real-time
+        for chunk in stream:
+                collected_response += chunk.choices[0].delta.content
+                placeholder.text(collected_response.replace("{", " ").replace("}", " "))
 
         # Add the assistant's response to the conversation history
         st.session_state.msg_history.append(

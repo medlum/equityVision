@@ -5,24 +5,27 @@ import streamlit_antd_components as sac
 import requests
 from bs4 import BeautifulSoup
 
-def yahooFinance():
-                                                                                                                                                                                                    
-    url = "https://sg.finance.yahoo.com/topic/latestnews/"                                                                                                                                                
-    response = requests.get(url)                                                                                                                                                                          
-    soup = BeautifulSoup(response.text, 'html.parser')                                                                                                                                                    
-                                                                                                                                                                                                        
-    div_elements = soup.find_all('div', class_='content yf-18q3fnf')                                                                                                                                      
-    output = ""                     
-    screener = []                                                                                                                                                                      
-    for i, div in enumerate(div_elements):                                                                                                                                                                
-        a_tag = div.find('a')                                                                                                                                                                             
-        title = a_tag.get('title')                                                                                                                                                                        
-        href = a_tag.get('href')                                                                                                                                                                          
-        output += f"{i+1}. News: {title}, URL: {href}\n"
-        screener.append(title)
-        #st.markdown(f' <a href="{href}" target="_blank" style="color:#1169f7; text-decoration: none;">{i+1}. {title}</a>',
-        #            unsafe_allow_html=True)
-    return '. '.join(screener)
+#def yahooFinance():
+#    url = "https://sg.finance.yahoo.com/topic/latestnews/"
+#    response = requests.get(url)
+#    soup = BeautifulSoup(response.text, 'html.parser')
+#
+#       # Use more general class from your provided HTML snippet
+#    article_elements = soup.find_all('section', class_='stream yf-1y7058a')
+#    
+#    output = ""
+#    screener = []
+#    print(article_elements)
+#
+#    for i, article in enumerate(article_elements):
+#        a_tag = article.find('a', attrs={'aria-label': True})
+#        if a_tag:
+#            aria_label = a_tag.get('aria-label')
+#            href = a_tag.get('href')
+#            output += f"{i+1}. News: {aria_label}, URL: {href}\n"
+#            screener.append(aria_label)
+#    
+#    return '. '.join(screener)
     
 
 def CNAheadlines(genre: str):
@@ -35,7 +38,7 @@ def CNAheadlines(genre: str):
         headlines = soup.find('body').find_all('h6')  # headlines at h6
         for x in headlines:
             news.append(x.text.strip())
-        return '. '.join(news)
+        return ' | | '.join(news)
     else:
         return "No response from news provider."
 
@@ -114,12 +117,14 @@ indices = {
     "USD/SGD": "SGD=X",
 }
 data = get_indices_data(indices)
-news = yahooFinance()  # utils
+#news = yahooFinance()  # utils
+#print(news)
 #st.write(news)
 #breakingnews(news, '', 'filled')  # component_sidebar
 
 # -----set up news ticker ------#
-#news = CNAheadlines("news")  # utils
+news = CNAheadlines("news")  # utils
+#print(news)
 #breakingnews(news, 'Breaking News...', 'outlined')  # component_sidebar
 
 

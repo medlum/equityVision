@@ -13,7 +13,7 @@ import streamlit as st
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from utils_banner import breakingnews, data, news
+from utils_banner import breakingnews, news
 
 
 
@@ -143,15 +143,14 @@ def login():
     #with col2:
         breakingnews(news, '', 'filled') 
         
-
-        col1, col2, col3, col4,  = st.columns(4)
-
-        # Distribute data across columns
-        columns = [col1, col2, col3, col4]
-        for i, (name, value, delta) in enumerate(data):
-            col = columns[i % 4]  # Cycle through columns
-            with col:
-                st.metric(label=f":blue[{name}]", value=value, delta=delta, border=True)
+        
+    #    col1, col2, col3, col4,  = st.columns(4)
+    #    # Distribute data across columns
+    #    columns = [col1, col2, col3, col4]
+    #    for i, (name, value, delta) in enumerate(data):
+    #        col = columns[i % 4]  # Cycle through columns
+    #        with col:
+    #            st.metric(label=f":blue[{name}]", value=value, delta=delta, border=True)
 
 
 

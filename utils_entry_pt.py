@@ -139,21 +139,19 @@ def find_user_credentials(user_id, password):
 
 
 def login():
-    #col1, col2, col3 = st.columns(3)
-    #with col2:
+
+    # RSS News from CNA
     breakingnews(news, '', 'filled') 
-        
-        
+    
+    # Stock Exchange Indices
     col1, col2, col3, col4,  = st.columns(4)
-    # Distribute data across columns
     columns = [col1, col2, col3, col4]
     for i, (name, value, delta) in enumerate(data):
         col = columns[i % 4]  # Cycle through columns
         with col:
             st.metric(label=f":blue[{name}]", value=value, delta=delta, border=True)
 
-
-
+    # User Log-in
     with st.sidebar:
         st.title(":rainbow[EquityVision]")
         # User input for login

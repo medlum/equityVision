@@ -33,20 +33,35 @@ def update_portfolio_summary():
         # Calculate total dividends
         ticker_obj = yf.Ticker(ticker)
         dividends = ticker_obj.dividends
-        if isinstance(dividends.index, pd.DatetimeIndex) and dividends.index.tz is not None:
-            dividends.index = dividends.index.tz_localize(None)  # Remove timezone from index
 
-        total_dividends = 0.0
-        for index, row in buy_data.iterrows():
-            buy_date = pd.Timestamp(row['Buy Date'])  # Convert to datetime64[ns]
-            sell_date = datetime.now()  # Default to current date if not sold
-            # Find corresponding sell transaction
-            sell_transaction = sell_data[(sell_data['Quantity'] == -row['Quantity']) & (pd.to_datetime(sell_data['Sell Date']) > buy_date)]
-            if not sell_transaction.empty:
-                sell_date = pd.Timestamp(sell_transaction['Sell Date'].iloc[0])  # Convert to datetime64[ns]
-            quantity = row['Quantity']
-            filtered_dividends = dividends[(dividends.index >= buy_date) & (dividends.index < sell_date)]
-            total_dividends += (filtered_dividends.sum()) * quantity
+        # Ensure index is DatetimeIndex and remove timezone if present
+        if not dividends.empty and isinstance(dividends.index, pd.DatetimeIndex):
+            if dividends.index.tz is not None:
+                dividends.index = dividends.index.tz_localize(None)
+
+            total_dividends = 0.0
+            for index, row in buy_data.iterrows():
+                buy_date = pd.Timestamp(row['Buy Date'])
+                sell_date = datetime.now()
+
+                sell_transaction = sell_data[
+                    (sell_data['Quantity'] == -row['Quantity']) &
+                    (pd.to_datetime(sell_data['Sell Date']) > buy_date)
+                ]
+                if not sell_transaction.empty:
+                    sell_date = pd.Timestamp(sell_transaction['Sell Date'].iloc[0])
+
+                quantity = row['Quantity']
+
+                # ✅ Safe filtering
+                filtered_dividends = dividends[
+                    (dividends.index >= buy_date) & (dividends.index < sell_date)
+                ]
+
+        total_dividends += filtered_dividends.sum() * quantity
+else:
+    total_dividends = 0.0
+
 
         total_return = ((realized_pnl + unrealized_pnl + total_dividends) / (avg_buy_price * total_bought)) * 100 if total_bought > 0 else 0
 

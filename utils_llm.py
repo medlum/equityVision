@@ -16,8 +16,8 @@ def initialize_inferenceclient():
 
 # LLM model option
 model_option = {"qwen2.5-72b": "Qwen/Qwen2.5-72B-Instruct-Turbo",
-                "llama3.3-70b":  "meta-llama/Llama-3.3-70B-Instruct-Turbo"
-                "deepseek-r1-distill-llama-70B"
+                "llama3.3-70b":  "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+                "deepseek-r1-distill-llama-70B": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"
                 }
 
 

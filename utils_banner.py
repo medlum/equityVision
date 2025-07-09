@@ -3,7 +3,8 @@ import streamlit as st
 from utils_markdown import display_md
 import streamlit_antd_components as sac
 import requests
-from bs4 import BeautifulSoup
+import xml.etree.ElementTree as ET
+
 
 
 def CNAheadlines(rss_url):

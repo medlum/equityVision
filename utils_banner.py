@@ -5,42 +5,29 @@ import streamlit_antd_components as sac
 import requests
 from bs4 import BeautifulSoup
 
-#def yahooFinance():
-#    url = "https://sg.finance.yahoo.com/topic/latestnews/"
-#    response = requests.get(url)
-#    soup = BeautifulSoup(response.text, 'html.parser')
-#
-#       # Use more general class from your provided HTML snippet
-#    article_elements = soup.find_all('section', class_='stream yf-1y7058a')
-#    
-#    output = ""
-#    screener = []
-#    print(article_elements)
-#
-#    for i, article in enumerate(article_elements):
-#        a_tag = article.find('a', attrs={'aria-label': True})
-#        if a_tag:
-#            aria_label = a_tag.get('aria-label')
-#            href = a_tag.get('href')
-#            output += f"{i+1}. News: {aria_label}, URL: {href}\n"
-#            screener.append(aria_label)
-#    
-#    return '. '.join(screener)
-    
 
-def CNAheadlines(genre: str):
+def CNAheadlines(rss_url):
 
-    url = "https://www.channelnewsasia.com"
-    response = requests.get(url)
-    if response.status_code == 200:
-        news = []
-        soup = BeautifulSoup(response.text, 'html.parser')
-        headlines = soup.find('body').find_all('h6')  # headlines at h6
-        for x in headlines:
-            news.append(x.text.strip())
-        return ' | | '.join(news)
-    else:
-        return "No response from news provider."
+    # Fetch the RSS feed
+    response = requests.get(rss_url)
+    response.raise_for_status()
+
+    # Parse the XML content
+    root = ET.fromstring(response.content)
+
+    # Find all <item> elements (RSS entries)
+    items = root.findall(".//item")
+
+    news = []
+
+    # Loop through items and print title/link
+    for i, item in enumerate(items):
+        title = item.findtext("title")
+        
+        news.append(title)
+
+    return ' ☛ '.join(news)
+
 
 def breakingnews(results, label, variant):
     """
@@ -123,8 +110,9 @@ data = get_indices_data(indices)
 #breakingnews(news, '', 'filled')  # component_sidebar
 
 # -----set up news ticker ------#
-news = CNAheadlines("news")  # utils
+rss_url = "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6936"
+headlines = CNAheadlines(rss_url)  # utils
 #print(news)
-breakingnews(news, 'Breaking News...', 'outlined')  # component_sidebar
+breakingnews(headlines, 'Breaking News...', 'outlined')  # component_sidebar
 
 

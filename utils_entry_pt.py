@@ -154,34 +154,34 @@ def login():
 
 
 
-        with st.sidebar:
-            st.title(":rainbow[EquityVision]")
-            # User input for login
-            user_id = st.text_input(f":blue[User ID]", key="user_id")
-            password = st.text_input(":blue[Password]", type="password")
-            st.markdown(f"""
-            <p style='color:#737578; font-size: 10px; text-align: justify'>{app_description}</p>
-            """, unsafe_allow_html=True)
-            login_state = find_user_credentials(user_id, password)
+    with st.sidebar:
+        st.title(":rainbow[EquityVision]")
+        # User input for login
+        user_id = st.text_input(f":blue[User ID]")
+        password = st.text_input(":blue[Password]", type="password")
+        st.markdown(f"""
+        <p style='color:#737578; font-size: 10px; text-align: justify'>{app_description}</p>
+        """, unsafe_allow_html=True)
+        login_state = find_user_credentials(user_id, password)
 
-            if login_state:
-                with st.status("Logging in...", expanded=False):
-                    drive = get_gdrive_service()
-                    st.session_state.logged_in = True
-                    st.session_state.drive = drive
-                    st.session_state.user_id = user_id
-                    st.success(f"Successfully authenticated as: {user_id}")
+        if login_state:
+            with st.status("Logging in...", expanded=False):
+                drive = get_gdrive_service()
+                st.session_state.logged_in = True
+                st.session_state.drive = drive
+                st.session_state.user_id = user_id
+                st.success(f"Successfully authenticated as: {user_id}")
 
-                    folder_id = "19OEoGnaj2aE4edVMVvA8eHdF7BI_7H4x"
-                    local_path = Path("./user_data") / user_id
-                    local_path.mkdir(parents=True, exist_ok=True)
+                folder_id = "19OEoGnaj2aE4edVMVvA8eHdF7BI_7H4x"
+                local_path = Path("./user_data") / user_id
+                local_path.mkdir(parents=True, exist_ok=True)
 
-                    user_folder_id = check_and_create_user_folder(
-                        drive, folder_id, user_id)
+                user_folder_id = check_and_create_user_folder(
+                    drive, folder_id, user_id)
 
-                    download_drive_contents(drive, user_folder_id, local_path)
-                    st.success(f"Successfully downloaded to: {local_path}")
-                    st.rerun()
+                download_drive_contents(drive, user_folder_id, local_path)
+                st.success(f"Successfully downloaded to: {local_path}")
+                st.rerun()
 
 
 

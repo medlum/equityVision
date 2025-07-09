@@ -117,7 +117,7 @@ with st.sidebar:
                                                             st.session_state.buy_transactions['Ticker'].unique())
                 updated_buy_date = st.date_input("Buy Date")
                 updated_buy_quantity = st.number_input("Buy Quantity", min_value=1, step=1)
-                updated_buy_price = st.number_input("Buy Price", min_value=0.001, step=0.001)
+                updated_buy_price = st.number_input("Buy Price", min_value=0.001, step=0.001, format="%0.3f")
                 update_buy_submit = st.form_submit_button("Update")
 
                 if update_buy_submit:
@@ -137,7 +137,7 @@ with st.sidebar:
             sell_ticker = st.selectbox("Ticker Symbol", st.session_state.buy_transactions['Ticker'].unique())
             sell_date = st.date_input("Sell Date")
             sell_quantity = st.number_input("Sell Quantity", min_value=1, step=1)
-            sell_price = st.number_input("Sell Price", min_value=0.001, step=0.001)
+            sell_price = st.number_input("Sell Price", min_value=0.001, step=0.001, format="%0.3f")
             sell_submit = st.form_submit_button("Sell")
 
         if sell_submit:
@@ -161,7 +161,7 @@ with st.sidebar:
                                                                 st.session_state.sell_transactions['Ticker'].unique())
                 updated_sell_date = st.date_input("Sell Date")
                 updated_sell_quantity = st.number_input("Sell Quantity", min_value=1, step=1)
-                updated_sell_price = st.number_input("Sell Price", min_value=0.001, step=0.001)
+                updated_sell_price = st.number_input("Sell Price", min_value=0.001, step=0.001, format="%0.3f")
                 update_sell_submit = st.form_submit_button("Update")
 
                 if update_sell_submit:

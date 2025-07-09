@@ -6,9 +6,9 @@ import requests
 import xml.etree.ElementTree as ET
 
 
-
 def CNAheadlines(rss_url):
 
+    
     # Fetch the RSS feed
     response = requests.get(rss_url)
     response.raise_for_status()
@@ -28,7 +28,6 @@ def CNAheadlines(rss_url):
         news.append(title)
 
     return ' ☛ '.join(news)
-
 
 def breakingnews(results, label, variant):
     """
@@ -111,9 +110,10 @@ data = get_indices_data(indices)
 #breakingnews(news, '', 'filled')  # component_sidebar
 
 # -----set up news ticker ------#
+# RSS feed URL
 rss_url = "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6936"
-headlines = CNAheadlines(rss_url)  # utils
+news = CNAheadlines(rss_url)  # utils
 #print(news)
-breakingnews(headlines, 'Breaking News...', 'outlined')  # component_sidebar
+#breakingnews(news, 'Breaking News...', 'outlined')  # component_sidebar
 
 

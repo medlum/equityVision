@@ -158,7 +158,7 @@ def login():
             st.title(":rainbow[EquityVision]")
             # User input for login
             user_id = st.text_input(f":blue[User ID]")
-            password = st.text_input(":blue[Password]", type="password")
+            password = st.text_input(":blue[Password]", type="password", key="user_id")
             st.markdown(f"""
             <p style='color:#737578; font-size: 10px; text-align: justify'>{app_description}</p>
             """, unsafe_allow_html=True)

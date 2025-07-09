@@ -192,12 +192,12 @@ with tab1:
             return f'color: {color}'
 
         styled_summary = st.session_state.portfolio_summary.style.format({
-            'Last Closing Price': "{:.2f}", 
-            'Average Buy Price': "{:.2f}",
-            'Unrealized P/L': "{:.2f}",
-            'Realized P/L': "{:.2f}",
-            'Total Return': "{:.2f}%",
-            'Total Dividends': "{:.2f}"
+            'Last Closing Price': "{:.3f}", 
+            'Average Buy Price': "{:.3f}",
+            'Unrealized P/L': "{:.3f}",
+            'Realized P/L': "{:.3f}",
+            'Total Return': "{:.3f}%",
+            'Total Dividends': "{:.3f}"
         }).applymap(color_negative_red_positive_blue, subset=['Unrealized P/L', 'Realized P/L', 'Total Return'])
 
         st.dataframe(

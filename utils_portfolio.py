@@ -58,9 +58,9 @@ def update_portfolio_summary():
                     (dividends.index >= buy_date) & (dividends.index < sell_date)
                 ]
 
-        total_dividends += filtered_dividends.sum() * quantity
-else:
-    total_dividends = 0.0
+            total_dividends += filtered_dividends.sum() * quantity
+        else:
+            total_dividends = 0.0
 
 
         total_return = ((realized_pnl + unrealized_pnl + total_dividends) / (avg_buy_price * total_bought)) * 100 if total_bought > 0 else 0

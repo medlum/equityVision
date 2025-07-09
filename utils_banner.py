@@ -111,4 +111,4 @@ data = get_indices_data(indices)
 rss_url = "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6936"
 news = CNAheadlines(rss_url)  # utils
 
-st.write(data)
+#st.write(data)

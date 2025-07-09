@@ -92,7 +92,7 @@ with st.sidebar:
 
             buy_date = st.date_input("Buy Date")
             buy_quantity = st.number_input("Buy Quantity", min_value=1, step=1)
-            buy_price = st.number_input("Buy Price", min_value=0.001, step=0.001)
+            buy_price = st.number_input("Buy Price", min_value=0.001, step=0.001, format="%0.3f")
             buy_submit = st.form_submit_button("Add")
 
         if buy_submit:

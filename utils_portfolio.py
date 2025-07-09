@@ -33,7 +33,7 @@ def update_portfolio_summary():
         # Calculate total dividends
         ticker_obj = yf.Ticker(ticker)
         dividends = ticker_obj.dividends
-        if dividends.index.tz is not None:
+        if isinstance(dividends.index, pd.DatetimeIndex) and dividends.index.tz is not None:
             dividends.index = dividends.index.tz_localize(None)  # Remove timezone from index
 
         total_dividends = 0.0

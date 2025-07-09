@@ -92,7 +92,7 @@ with st.sidebar:
 
             buy_date = st.date_input("Buy Date")
             buy_quantity = st.number_input("Buy Quantity", min_value=1, step=1)
-            buy_price = st.number_input("Buy Price", min_value=0.01, step=0.01)
+            buy_price = st.number_input("Buy Price", min_value=0.001, step=0.001)
             buy_submit = st.form_submit_button("Add")
 
         if buy_submit:
@@ -137,7 +137,7 @@ with st.sidebar:
             sell_ticker = st.selectbox("Ticker Symbol", st.session_state.buy_transactions['Ticker'].unique())
             sell_date = st.date_input("Sell Date")
             sell_quantity = st.number_input("Sell Quantity", min_value=1, step=1)
-            sell_price = st.number_input("Sell Price", min_value=0.01, step=0.01)
+            sell_price = st.number_input("Sell Price", min_value=0.001, step=0.001)
             sell_submit = st.form_submit_button("Sell")
 
         if sell_submit:
@@ -223,7 +223,7 @@ with tab1:
             #st.write("###### :grey[Investment by Stock Exchange]")
             st.dataframe(
                 st.session_state.total_investment_by_exchange.style.format({
-                    'Total Investment': "{:.2f}"
+                    'Total Investment': "{:.3f}"
                 }),
                 use_container_width=False,
                 hide_index=True
@@ -352,7 +352,7 @@ with tab2:
     if not st.session_state.buy_transactions.empty:
         st.dataframe(
             st.session_state.buy_transactions.style.format({
-                'Buy Price': "{:.2f}"
+                'Buy Price': "{:.3f}"
             }),
             use_container_width=True
         )
@@ -370,7 +370,7 @@ with tab3:
     if not st.session_state.sell_transactions.empty:
         st.dataframe(
             st.session_state.sell_transactions.style.format({
-                'Sell Price': "{:.2f}"
+                'Sell Price': "{:.3f}"
             }),
             use_container_width=True
         )

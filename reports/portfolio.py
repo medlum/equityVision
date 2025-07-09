@@ -117,7 +117,7 @@ with st.sidebar:
                                                             st.session_state.buy_transactions['Ticker'].unique())
                 updated_buy_date = st.date_input("Buy Date")
                 updated_buy_quantity = st.number_input("Buy Quantity", min_value=1, step=1)
-                updated_buy_price = st.number_input("Buy Price", min_value=0.01, step=0.01)
+                updated_buy_price = st.number_input("Buy Price", min_value=0.001, step=0.001)
                 update_buy_submit = st.form_submit_button("Update")
 
                 if update_buy_submit:

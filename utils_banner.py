@@ -104,16 +104,11 @@ indices = {
     "USD/SGD": "SGD=X",
 }
 data = get_indices_data(indices)
-#news = yahooFinance()  # utils
-#print(news)
-#st.write(news)
-#breakingnews(news, '', 'filled')  # component_sidebar
+
 
 # -----set up news ticker ------#
 # RSS feed URL
 rss_url = "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6936"
 news = CNAheadlines(rss_url)  # utils
-#print(news)
-#breakingnews(news, 'Breaking News...', 'outlined')  # component_sidebar
 
-
+st.write(data)
